@@ -14,8 +14,8 @@ typedef struct link_ link_t;
 
 typedef struct interface_{
     char if_name [IF_NAME_SIZE];
-    struct node* att_node;
-    struct link_* link;
+    struct node_ *att_node;
+    struct link_ *link;
 }interface_t;
 
 struct link_{
@@ -57,10 +57,10 @@ get_nbr_node(interface_t *interface){
 
     link_t *link = interface->link;
     if(&( link->intf1 ) == interface){
-        return intf2;
+        return link->intf2.att_node;
     }
     else{
-       return intf1;
+        return link->intf1.att_node;
     }
 }
 
@@ -69,14 +69,19 @@ static inline int
 get_node_intf_available_slot(node_t*node){
     int i;
     for (i = 0;i<MAX_INTF_PER_NODE;i++){
-        if(node->intf[i]==NULL)
+        if(!node->intf[i])
             return i;
     }
     return -1;
 }    
 
-void dump_graph(graph_t *graph);
-void dump_node(node_t *node);
-void dump_interface(interface_t *interface);
+void 
+dump_graph(graph_t *graph);
+
+void 
+dump_node(node_t *node);
+
+void 
+dump_interface(interface_t *interface);
 
 #endif
