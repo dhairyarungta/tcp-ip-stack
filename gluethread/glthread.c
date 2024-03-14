@@ -108,8 +108,8 @@ glthread_priority_insert(glthread_t *base_glthread,
 
         prev = base_glthread;
         ITERATE_GLTHREAD_BEGIN(base_glthread,cur){
-            if(comp(GLTHREAD_GET_USER_DATE_FROM_OFFSET(glthread,offset),
-            GLTHREAD_GET_USER_DATE_FROM_OFFSET(cur,offset))==-1){
+            if(comp(GLTHREAD_GET_USER_DATA_FROM_OFFSET(glthread,offset),
+            GLTHREAD_GET_USER_DATA_FROM_OFFSET(cur,offset))==-1){
                 glthread_add_next(prev, glthread);
                 return;
             }

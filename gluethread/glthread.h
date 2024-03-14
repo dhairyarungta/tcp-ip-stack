@@ -55,7 +55,7 @@ get_glthread_list_count(glthread_t *base_glthread);
 
 #define ITERATE_GLTHREAD_END(glthreadptrstart,gltreadptr)}}
 
-#define GLTHREAD_GET_USER_DATE_FROM_OFFSET(glthreadptr, offset)\
+#define GLTHREAD_GET_USER_DATA_FROM_OFFSET(glthreadptr, offset)\
     (void*)((char*)(glthreadptr)-offset)
 
 #endif

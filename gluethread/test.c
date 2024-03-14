@@ -36,7 +36,7 @@ int main(int argc, char**argv){
     person[2].weight = 32;
     person[3].age = 11;
     person[3].weight = 12;
-    person[4].age = 21;
+    person[4].age = 81;
     person[4].weight = 90;
 
     glthread_t base_glthread;
