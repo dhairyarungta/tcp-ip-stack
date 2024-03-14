@@ -52,6 +52,33 @@ int main(int argc, char**argv){
         person_t *p = thread_to_person(cur);
         printf("Age = %d\n", p->age);
     }ITERATE_GLTHREAD_END(&base_glthread,cur);
+    remove_glthread(&person[4].glthread);
+    printf("\n\n after removal 1\n");
+
+    ITERATE_GLTHREAD_BEGIN(&base_glthread, cur)
+    {
+        person_t *p = thread_to_person(cur);
+        printf("Age = %d\n", p->age);
+
+    }
+    ITERATE_GLTHREAD_END(&base_glthread, cur);
+
+    remove_glthread(&person[2].glthread);
+    printf("\n\n after removal 2\n");
+    ITERATE_GLTHREAD_BEGIN(&base_glthread, cur)
+    {   
+
+        person_t *p = thread_to_person(cur);
+        printf("Age = %d\n", p->age);
+
+    }
+    ITERATE_GLTHREAD_END(&base_glthread, cur);
+
+
+    delete_glthread_list(&base_glthread);
+    printf("after delete list\n");
+    printf("\ncount=%d\n",get_glthread_list_count(&base_glthread));
 
     return 0;
+;
 }
