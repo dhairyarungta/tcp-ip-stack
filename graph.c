@@ -37,7 +37,7 @@ create_graph_node(graph_t *graph, char *node_name){
 
 
 graph_t* 
-create_graph_node(char *topology_name){
+create_new_graph(char *topology_name){
     graph_t *graph = calloc(1, sizeof(graph_t));
     init_glthread(&graph->node_list);
     strncpy(graph->topology_name,topology_name,32);
