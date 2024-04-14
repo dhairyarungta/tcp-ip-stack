@@ -22,8 +22,15 @@ insert_link_between_two_nodes(node_t *node1,
         node1->intf[intf_index1] = &(link->intf1);
         node2->intf[intf_index2] = &(link->intf2);
 
+        init_intf_nw_prop(&link->intf1.intf_nw_props);
+        init_intf_nw_prop(&link->intf2.intf_nw_props);
+
+        /*Assign random generated MAC address to each interface*/
+        interface_assign_mac_address(&link->intf1);
+        interface_assign_mac_address(&link->intf2);
         
-    }
+                
+}
 
 node_t*
 create_graph_node(graph_t *graph, char *node_name){
@@ -32,6 +39,7 @@ create_graph_node(graph_t *graph, char *node_name){
     node->node_name[NODE_NAME_SIZE] = '\0';
     init_glthread(&node->graph_glue);    
     glthread_add_next(&graph->node_list,&node->graph_glue);
+    init_node_nw_prop(&node->node_nw_prop);
     return node;
 }
 

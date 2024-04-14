@@ -4,6 +4,8 @@
 
 #include <assert.h>
 #include "gluethread/glthread.h"
+#include "net.h"
+
 
 #define NODE_NAME_SIZE 16
 #define IF_NAME_SIZE 16
@@ -16,6 +18,7 @@ typedef struct interface_{
     char if_name [IF_NAME_SIZE];
     struct node_ *att_node;
     struct link_ *link;
+    intf_nw_props_t intf_nw_props;
 }interface_t;
 
 struct link_{
@@ -26,8 +29,9 @@ struct link_{
 
 struct node_{
     char node_name[NODE_NAME_SIZE];
-    interface_t *intf[MAX_INTF_PER_NODE];
+    interface_t* intf[MAX_INTF_PER_NODE];
     glthread_t graph_glue;
+    node_nw_prop_t node_nw_prop;
 };
 
 GLTHREAD_TO_STRUCT(graph_glue_to_node, node_t, graph_glue);
@@ -74,6 +78,19 @@ get_node_intf_available_slot(node_t*node){
     }
     return -1;
 }    
+static inline interface_t *
+get_node_if_by_name(node_t *node, char *if_name){
+    interface_t **intf = node->intf;
+    assert(intf);
+
+    for (int i =0 ;i<MAX_INTF_PER_NODE;i++){
+        if(!intf[i])
+            return NULL;
+        if(strncmp(if_name,intf[i]->if_name,IF_NAME_SIZE)==0)
+            return intf[i];
+    }
+    return NULL;
+}
 
 void 
 dump_graph(graph_t *graph);
