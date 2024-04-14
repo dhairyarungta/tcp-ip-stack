@@ -71,6 +71,7 @@ get_nbr_node(interface_t *interface){
 
 static inline int 
 get_node_intf_available_slot(node_t*node){
+    assert(node->intf);
     int i;
     for (i = 0;i<MAX_INTF_PER_NODE;i++){
         if(!node->intf[i])
@@ -85,10 +86,24 @@ get_node_if_by_name(node_t *node, char *if_name){
 
     for (int i =0 ;i<MAX_INTF_PER_NODE;i++){
         if(!intf[i])
-            return NULL;
+            return NULL;//making an assumption that the intf array of a node has empty entry in between other intf
         if(strncmp(if_name,intf[i]->if_name,IF_NAME_SIZE)==0)
             return intf[i];
     }
+    return NULL;
+}
+
+static inline node_t *
+get_node_by_node_name(graph_t *topo, char *node_name){
+    glthread_t *node_list_head_ptr = &(topo->node_list);
+    glthread_t *glthreadptr;
+    node_t *node = NULL;
+    ITERATE_GLTHREAD_BEGIN(node_list_head_ptr, glthreadptr)
+        node = graph_glue_to_node(glthreadptr);
+        if(strncmp(node->node_name,node_name,16)==0){
+            return node;
+        }
+    ITERATE_GLTHREAD_END(node_list_head_ptr, glthreadptr)
     return NULL;
 }
 
