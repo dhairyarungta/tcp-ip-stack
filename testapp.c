@@ -1,9 +1,11 @@
 #include "graph.h"
 #include "CommandParser/libcli.h"
 #include "net.h"
-extern graph_t *build_first_topo();
 
-graph_t *topo;
+extern graph_t *build_first_topo();
+extern void nw_init_cli();
+
+graph_t *topo = NULL;
 
 int 
 main(int argc, char** argv){

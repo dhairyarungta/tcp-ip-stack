@@ -91,14 +91,14 @@ void dump_intf_props(interface_t *interface){
     IF_MAC(interface)[3],IF_MAC(interface)[4],IF_MAC(interface)[5]);
 
 }
-
-unsigned int
-convert_ip_from_str_to_int(char *ip_addr){
-    ;
-}
-
-
-void
-convert_ip_fron_int_to_str(unsigned int ip_addr, char *output_buffer){
-    ;
-}
+//
+//unsigned int
+//convert_ip_from_str_to_int(char *ip_addr){
+//    ;
+//}
+//
+//
+//void
+//convert_ip_fron_int_to_str(unsigned int ip_addr, char *output_buffer){
+//    ;
+//}
