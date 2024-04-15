@@ -1,5 +1,7 @@
 #include "graph.h"
 
+extern
+void network_start_pkt_receiver_thread(graph_t *);
 
 graph_t *
 build_first_topo(){
@@ -34,6 +36,7 @@ build_first_topo(){
     insert_link_between_two_nodes(R1_re,R2_re, "eth0/2", "eth0/3",1);
     insert_link_between_two_nodes(R0_re,R2_re, "eth0/4", "eth0/5",1);
 
+    network_start_pkt_receiver_thread(topo);
     return topo;
 
 }

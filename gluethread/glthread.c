@@ -42,7 +42,7 @@ remove_glthread(glthread_t *glthread){
     if(glthread->right == NULL){
         if(glthread->left !=NULL){
             glthread->left->right = NULL;
-            glthread->left == NULL;
+            glthread->left = NULL;
         }
          return;
     }
@@ -91,6 +91,7 @@ get_glthread_list_count(glthread_t *base_glthread){
     ITERATE_GLTHREAD_BEGIN(base_glthread,glthreadptr){
         count++;
     }ITERATE_GLTHREAD_END(base_glthread,glthreadptr);
+    return count;
 }
 
 void

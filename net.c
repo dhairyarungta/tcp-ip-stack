@@ -32,20 +32,9 @@ interface_assign_mac_address(interface_t *interface){
     memcpy(IF_MAC(interface), (char*)&hash_code_val, sizeof (unsigned int));
 }
 
-bool_t node_set_device_type(node_t *node, unsigned int F){
-    SET_BIT(node->node_nw_prop.flags,F);
-    return TRUE;
-}
-
 
 bool_t node_set_loopback_address(node_t *node, char *ip_addr){
     assert(ip_addr);
-
-    if(IS_BIT_SET(node->node_nw_prop.flags,2))
-        assert(0); /* HUB doesn't have a ip addr*/
-    
-    if(!IS_BIT_SET(node->node_nw_prop.flags,0))
-        assert(0); /*L3 Router Mode should be set for assigning loopback address*/
 
    node->node_nw_prop.is_lb_addr_config = TRUE;
    strncpy(NODE_LO_ADDR(node),ip_addr,16);
@@ -87,7 +76,7 @@ void dump_nw_graph(graph_t *graph){
 void dump_node_nw_props(node_t *node){
     printf("\nNode name : %s\n",node->node_name);
     printf("\tFlags : %u\n",node->node_nw_prop.flags);
-    if(node->node_nw_prop.is_lb_addr_config=TRUE)
+    if(node->node_nw_prop.is_lb_addr_config==TRUE)
         printf("\tIP Addr : %s",NODE_LO_ADDR(node));
 
 }
@@ -101,4 +90,15 @@ void dump_intf_props(interface_t *interface){
     printf("MAC Address : %u:%u:%u:%u:%u:%u:%u:%u\n",IF_MAC(interface)[0],IF_MAC(interface)[1],IF_MAC(interface)[2],
     IF_MAC(interface)[3],IF_MAC(interface)[4],IF_MAC(interface)[5]);
 
+}
+
+unsigned int
+convert_ip_from_str_to_int(char *ip_addr){
+    ;
+}
+
+
+void
+convert_ip_fron_int_to_str(unsigned int ip_addr, char *output_buffer){
+    ;
 }

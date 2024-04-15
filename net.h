@@ -4,9 +4,6 @@
 #include "utils.h"
 #include <memory.h>
 
-#define L3_ROUTER (1<<0)
-#define L2_SWITCH (1<<1)
-#define HUB       (1<<2)
 
 typedef struct graph_ graph_t;
 typedef struct interface_ interface_t;
@@ -64,8 +61,8 @@ interface_assign_mac_address(interface_t *interface);
 
 #define NODE_LO_ADDR(node_ptr) (node_ptr->node_nw_prop.lb_addr.ip_addr)
 
+#define IS_INTF_L3_MODE(intf_ptr)((intf_ptr->is_ipadd_config==TRUE)&&(IF_IP(IP)!=NULL))
 
-bool_t node_set_device_type(node_t *node, unsigned int F);
 bool_t node_set_loopback_address(node_t *node, char *ip_addr);
 bool_t node_set_intf_ip_address(node_t *node, char *local_if, char *ip_addr, char mask);
 bool_t node_unset_intf_ip_address(node_t *node, char *local_if);
@@ -73,5 +70,11 @@ bool_t node_unset_intf_ip_address(node_t *node, char *local_if);
 void dump_nw_graph(graph_t *graph);
 void dump_node_nw_props(node_t *node);
 void dump_intf_props(interface_t *interface);
+
+unsigned int
+convert_ip_from_str_to_int(char *ip_addr);
+
+void
+convert_ip_fron_int_to_str(unsigned int ip_addr, char *output_buffer);
 
 #endif

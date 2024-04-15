@@ -1,11 +1,11 @@
 CC=gcc
 CFLAGS=-g
 TARGET:test.exe
-
-OBJS=gluethread/glthread.o graph.o topologies.o
+LIBS : -lpthread -L ./CommandParser -lcli
+OBJS=gluethread/glthread.o graph.o topologies.o CommandParser/libcli.a comm.o net.o utils.o
 
 test.exe:testapp.o ${OBJS} 
-	${CC} ${CFLAGS} testapp.o ${OBJS} -o test.exe 
+	${CC} ${CFLAGS} testapp.o ${OBJS} ${LIBS} -o test.exe 
 testapp.o:testapp.c
 	${CC} ${CFLAGS} -c testapp.c -o testapp.o
 gluethread/glthread.o:gluethread/glthread.c
@@ -14,8 +14,16 @@ graph.o:graph.c
 	${CC} ${CFLAGS} -c graph.c -o graph.o
 topologies.o:topologies.c
 	${CC} ${CFLAGS} -c topologies.c -o topologies.o
-
+comm.o:comm.c
+	${CC} ${CFLAGS} -c comm.c -o comm.o
+net.o:net.c
+	${CC} ${CFLAGS} -c net.c -o net.o
+utils.o:utils.c 
+	${CC} ${CFLAGS} -c utils.c -o utils.o
+CommandParser/libcli.a:
+	(cd CommandParser; make)
 clean:
 	rm *.o
 	rm gluethread/glthread.o
 	rm *exe
+	(cd CommandParser; make clean)
