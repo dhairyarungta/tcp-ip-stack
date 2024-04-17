@@ -1,5 +1,5 @@
 #include "graph.h"
-
+#include "comm.h"
 //extern
 //void network_start_pkt_receiver_thread(graph_t *);
 
@@ -44,13 +44,11 @@ build_first_topo(){
     node_set_intf_ip_address(R1_re, "eth0/1", "20.1.1.2", 24);
     node_set_intf_ip_address(R1_re, "eth0/2", "30.1.1.1", 24);
     
-
     node_set_loopback_address(R2_re, "122.1.1.2");
     node_set_intf_ip_address(R2_re, "eth0/3", "30.1.1.2", 24);
     node_set_intf_ip_address(R2_re, "eth0/5", "40.1.1.2", 24);
     
-
-    //network_start_pkt_receiver_thread(topo);
+    network_start_pkt_receiver_thread(topo);
 
     return topo;
 
