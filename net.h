@@ -71,6 +71,12 @@ void dump_nw_graph(graph_t *graph);
 void dump_node_nw_props(node_t *node);
 void dump_intf_props(interface_t *interface);
 
+unsigned int 
+ip_addr_p_to_n(char *ip_addr);
+
+void
+ip_addr_n_to_p(unsigned int ip_addr, char *ip_addr_str);
+
 unsigned int
 convert_ip_from_str_to_int(char *ip_addr);
 

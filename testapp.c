@@ -15,9 +15,16 @@ graph_t *topo = NULL;
 
 int 
 main(int argc, char** argv){
+    char ip_addr[16];
+    unsigned int ip_uint =2131495937 ;
+    ip_addr_n_to_p(ip_uint, ip_addr);
+    printf("%s\n",ip_addr);
 
-    nw_init_cli();
-    topo = build_first_topo();
+
+    //printf("%u\n",ip_addr_p_to_n("127.0.0.1")); 
+    //printf("%u\n",ip_addr_p_to_n("255.255.255.255")); 
+    //nw_init_cli();
+    //topo = build_first_topo();
 
     return 0;    
 

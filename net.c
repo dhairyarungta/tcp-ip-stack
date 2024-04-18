@@ -3,6 +3,8 @@
 #include "utils.h"
 #include <stdio.h>
 #include <memory.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 static unsigned int
 hash_code(void *ptr, unsigned int size){
@@ -90,6 +92,49 @@ void dump_intf_props(interface_t *interface){
     printf("MAC Address : %u:%u:%u:%u:%u:%u:%u:%u\n",IF_MAC(interface)[0],IF_MAC(interface)[1],IF_MAC(interface)[2],
     IF_MAC(interface)[3],IF_MAC(interface)[4],IF_MAC(interface)[5]);
 
+}
+
+unsigned int
+ip_addr_p_to_n(char *ip_addr){  
+    char *temp = (char *)calloc(1,sizeof(ip_add_t));
+    strncpy(temp,ip_addr,strnlen(ip_addr,sizeof(ip_add_t)));
+    char* delimiter_character = ".";
+    char *token = strtok(temp, delimiter_character);
+    unsigned int ip_uint= 0;    
+    int shift_count = 24;
+    while(token!=NULL){
+        //int temp = atoi(token) ;
+        unsigned int temp = atoi(token) ;
+        ip_uint^=(temp<<shift_count);
+        shift_count-=8;
+        token = strtok(NULL,delimiter_character);
+    }
+
+    return ip_uint;
+
+}
+
+void
+ip_addr_n_to_p(unsigned int ip_addr, char *ip_addr_str){
+    unsigned int mask = 0xFF000000;
+    int shitf_count = 24;
+     char ip_p [sizeof(ip_add_t)];
+     char *write_position = ip_p;
+    for (int i=0;i<4;i++){
+        unsigned int ip_part = mask & ip_addr;
+        ip_part>>=shitf_count;
+        int n = sprintf(write_position,"%u",ip_part);
+        write_position+=n;
+        if(i!=3){
+            sprintf(write_position,".");
+            write_position++;
+        }
+        shitf_count-=8;
+        mask = mask>>8;
+    }
+     
+    memcpy(ip_addr_str,ip_p, sizeof(ip_add_t));
+    return;
 }
 
 unsigned int
