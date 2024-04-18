@@ -102,7 +102,7 @@ _network_start_pkt_receiver_thread(void *arg){
                 memset(recv_buffer, 0, MAX_PACKET_BUFFER_SIZE);
                 bytes_recvd = recvfrom(node->udp_sock_fd, (char *)recv_buffer,
                     MAX_PACKET_BUFFER_SIZE, 0, (struct sockaddr*)&sender_addr, &addr_len);
-        //printf("bytes recvd %d\n",bytes_recvd);
+                //printf("bytes recvd %d\n",bytes_recvd);
                 _pkt_receive(node,recv_buffer,bytes_recvd);
             }
         }ITERATE_GLTHREAD_END(&topo->node_list,curr);
@@ -193,3 +193,21 @@ send_pkt_out(char *pkt, unsigned int pkt_size, interface_t *interface){
     return rc; 
 
 }
+
+//int
+//send_pkt_flood(node_t * node, interface_t *exempted_intf, char *pkt, unsigned int pkt_size){
+    //interface_t **intf_array = node->intf;
+    //if(intf_array == NULL)
+        //return -1;
+
+    //for(int i = 0; i<MAX_INTF_PER_NODE ; i++){
+        //if(intf_array[i]==exempted_intf){
+            //int rc = send_pkt_out(pkt, pkt_size, intf_array[i]);
+            ////if(rc<0){ 
+                ////return -1;
+            ////}
+        ////}
+
+    //}     
+   //return 0; 
+//}
