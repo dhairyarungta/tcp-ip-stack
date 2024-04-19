@@ -4,10 +4,13 @@
 #include "utils.h"
 #include <memory.h>
 
-
+/*Forward declarations*/
 typedef struct graph_ graph_t;
 typedef struct interface_ interface_t;
 typedef struct node_ node_t;
+typedef struct arp_table_ arp_table_t;
+
+extern void init_arp_table(arp_table_t **arp_table);
 
 typedef struct ip_add_{
     unsigned char ip_addr[16];
@@ -20,10 +23,12 @@ typedef struct mac_add_{
 typedef struct node_nw_prop_{
     /*To find various node device capabilities*/
     unsigned int flags;
+    arp_table_t *arp_table;      
 
     /*L3 properties*/
     bool_t is_lb_addr_config;
     ip_add_t lb_addr; /*loopback address of node*/
+    
 }node_nw_prop_t;
 
 static inline void
@@ -31,6 +36,7 @@ init_node_nw_prop(node_nw_prop_t *node_nw_prop){
     node_nw_prop->flags = 0;
     node_nw_prop->is_lb_addr_config = FALSE;
     memset(node_nw_prop->lb_addr.ip_addr,0, 16);
+    init_arp_table(&(node_nw_prop->arp_table));
 }
 
 typedef struct intf_nw_props_{
@@ -62,6 +68,7 @@ interface_assign_mac_address(interface_t *interface);
 #define NODE_LO_ADDR(node_ptr) (node_ptr->node_nw_prop.lb_addr.ip_addr)
 
 #define IS_INTF_L3_MODE(intf_ptr)((intf_ptr->intf_nw_props.is_ipadd_config==TRUE)&&(IF_IP(intf_ptr)!=NULL))
+#define NODE_ARP_TABLE(node) (node->node_nw_prop.arp_table)
 
 bool_t node_set_loopback_address(node_t *node, char *ip_addr);
 bool_t node_set_intf_ip_address(node_t *node, char *local_if, char *ip_addr, char mask);

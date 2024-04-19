@@ -7,6 +7,18 @@
 #include "../graph.h"
 
 #pragma pack(push,1)
+typedef struct apr_hdr_{
+    short hw_type; //hardware type, 1 for eth cable
+    short proto_type ; //0x0800 for IPv4
+    char hw_addr_len;
+    char proto_addr_len;
+    short op_code;
+    mac_add_t src_mac;
+    unsigned int src_ip;
+    mac_add_t dst_mac;
+    unsigned int dsp_ip;
+}arp_hdr_t;
+
 typedef struct ethernet_hdr_ {
     mac_add_t dst_mac;
     mac_add_t src_mac;
@@ -15,6 +27,20 @@ typedef struct ethernet_hdr_ {
     unsigned int FCS; //frame check sequence
 } ethernet_hdr_t;
 #pragma pack(pop)
+
+
+typedef struct arp_entry_{
+    ip_add_t ip_addr;
+    mac_add_t mac_addr;
+    char oif_name [IF_NAME_SIZE];
+    glthread_t arp_glue;
+}arp_entry_t;
+
+typedef struct arp_table_{
+    glthread_t arp_entries;
+}arp_table_t;
+
+GLTHREAD_TO_STRUCT(arp_glue_to_arp, arp_entry_t, arp_glue);
 
 
 static inline bool_t 
@@ -64,5 +90,36 @@ ALLOC_ETH_HDR_WITH_PAYLOAD(char *pkt,unsigned int pkt_size){
     
 }
 
+
+static void
+process_arp_reply_msg(node_t *node, interface_t *iif, ethernet_hdr_t *ethernet_hdr);
+
+static void
+send_arp_reply_msg(ethernet_hdr_t *ethernet_hdr_in, interface_t *oif);
+
+static void
+process_arp_broadcast_request(node_t *node, interface_t *iif, ethernet_hdr_t *ethernet_hdr);
+
+void 
+init_arp_table(arp_table_t **arp_table);
+
+bool_t 
+arp_table_entry_add(arp_table_t *arp_table, arp_entry_t *arp_entry);
+
+void
+arp_table_update_from_arp_reply(arp_table_t *arp_table, arp_hdr_t *arp_hdr, interface_t *iif);//incoming intf
+
+void 
+delete_arp_table_entry(arp_table_t *arp_table, char *ip_addr);
+
+void
+dump_arp_table(arp_table_t *arp_table);
+
+void
+send_arp_broadcast_request(node_t *node, interface_t *oif, char *ip_addr);
+
+
+arp_entry_t *
+arp_table_lookup(arp_table_t *arp_table, char *ip_addr);
 
 #endif
