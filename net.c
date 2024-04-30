@@ -18,7 +18,6 @@ hash_code(void *ptr, unsigned int size){
         i++;
     }
     return value;
-
 }
 
 void 
@@ -143,7 +142,9 @@ ip_addr_n_to_p(unsigned int ip_addr, char *ip_addr_str){
 
 char *
 pkt_buffer_shift_right(char *pkt, unsigned int pkt_size, 
-    unsigned int total_buffer_size);
+    unsigned int total_buffer_size){
+
+}
 
 unsigned int
 convert_ip_from_str_to_int(char *ip_addr){
@@ -153,5 +154,10 @@ convert_ip_from_str_to_int(char *ip_addr){
 
 void
 convert_ip_fron_int_to_str(unsigned int ip_addr, char *output_buffer){
+    ;
+}
+
+interface_t *
+node_get_matching_subnet_interface(node_t *node, char *ip_addr){
     ;
 }

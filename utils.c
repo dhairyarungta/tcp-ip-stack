@@ -21,7 +21,8 @@ tcp_ip_convert_ip_n_to_p(uint32_t ip_addr,
     static char str_ip[16];
     out = !output_buffer ? str_ip : output_buffer;
     memset(out, 0, 16);
-    ip_addr = ntohl(ip_addr);
+    ip_addr = htonl(ip_addr);
+    /*inet_ntop requires input ip_addr in network byte order*/
     inet_ntop(AF_INET, &ip_addr, out, 16);
     out[15] = '\0';
     return out;
@@ -31,6 +32,8 @@ uint32_t
 tcp_ip_convert_ip_p_to_n(char *ip_addr){
     uint32_t binary_prefix = 0;    
     inet_pton(AF_INET, ip_addr, &binary_prefix);
+    /*htonl is not necessary since inet_pton writes to destination 
+    in network byte order*/    
     binary_prefix = htonl(binary_prefix);
     return binary_prefix;
 }
