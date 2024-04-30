@@ -1,6 +1,24 @@
 #include "layer2.h"
 #include <stdlib.h>
 #include "../tcpconst.h"
+#include <arpa/inet.h>
+
+
+void 
+send_arp_broadcast_request(node_t *node, interface_t *oif, char *ip_addr){
+    
+}
+
+static void 
+send_arp_reply_msg(ethernet_hdr_t *ethernet_hdr_in, interface_t *oif){
+
+}
+
+static void
+process_arp_broadcast_request(node_t *node, interface_t *iif, 
+    ethernet_hdr_t *ethernet_hdr){
+
+}
 
 void 
 layer2_frame_recv(node_t *node, interface_t *interface, 
@@ -54,6 +72,7 @@ arp_table_update_from_arp_reply(arp_table_t *arp_table,
     assert(arp_hdr->op_code == ARP_REPLY);
     arp_entry_t *arp_entry = calloc(1, sizeof(arp_entry_t));
     src_ip = htonl(arp_hdr->src_ip);
+    inet_ntop(AF_INET, &src_ip, &arp_entry->ip_addr.ip_addr, 16);
     arp_entry->ip_addr.ip_addr[15] = '\0';
     memcpy(arp_entry->mac_addr.mac,arp_hdr->src_mac.mac,sizeof(mac_add_t));
     strncpy(arp_entry->oif_name, iif->if_name, IF_NAME_SIZE);
@@ -78,10 +97,11 @@ delete_arp_table_entry(arp_table_t *arp_table, char *ip_addr){
 
 void
 dump_arp_table(arp_table_t *arp_table){
-    ;
-}
+    glthread_t *glthreadptr = NULL;
+    arp_entry_t *arp_entry = NULL;
 
-void 
-send_arp_broadcast_request(node_t *node, interface_t *oif, char *ip_addr){
-    ;
+    ITERATE_GLTHREAD_BEGIN(&arp_table->arp_entries, glthreadptr){
+        arp_entry = arp_glue_to_arp(glthreadptr);
+        printf("IP : %s, MAC : %u:%u:%u:%u:%u:%u:%u, OIF : ")
+    }ITERATE_GLTHREAD_END(&arp_table->arp_entries, glthreadptr);
 }
