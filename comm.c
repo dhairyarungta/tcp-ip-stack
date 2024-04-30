@@ -15,15 +15,20 @@ static char send_buffer[MAX_PACKET_BUFFER_SIZE];
 static char recv_buffer[MAX_PACKET_BUFFER_SIZE];
 static unsigned int udp_port_number = 40000;
 
+extern void layer2_frame_recv(node_t *node, interface_t *interface,
+    char *pkt, unsigned int pkt_size);
+
 static unsigned int
 get_next_udp_port_number(){
     return udp_port_number++;
 }
 
 int pkt_receive(node_t *node, interface_t *interface, char*pkt, unsigned int pkt_size){
-    printf("Packet received by Node : %s, Interface : %s, Pkt Content : %s, Pkt size : %d\n",
-        node->node_name, interface->if_name, pkt, pkt_size);
-    
+//    printf("Packet received by Node : %s, Interface : %s, Pkt Content : %s, Pkt size : %d\n",
+//        node->node_name, interface->if_name, pkt, pkt_size); 
+
+    pkt_buffer_shift_right(pkt, pkt_size, MAX_PACKET_BUFFER_SIZE-IF_NAME_SIZE);
+    layer2_frame_recv(node, interface, pkt, pkt_size);    
     return 0;
 
 }
@@ -130,22 +135,6 @@ init_udp_socket(node_t *node){
     node->udp_sock_fd = udp_sock_fd;
 
 }
-//void
-//init_udp_socket(node_t *node){
-
-    //node->udp_port_number = get_next_udp_port_number();
-
-    //int udp_sock_fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    //struct sockaddr_in node_addr;
-    //node_addr.sin_family = AF_INET;
-    //node_addr.sin_port = node->udp_port_number;
-    //node_addr.sin_addr.s_addr = INADDR_ANY;
-    //if(bind(udp_sock_fd,(struct sockaddr *)&node_addr,sizeof(struct sockaddr))==-1){
-        //printf("Error : socket bind failed for Node %s \n",node->node_name);
-        //return;
-    //}
-    //node->udp_sock_fd = udp_sock_fd;
-//}
 
 void 
 network_start_pkt_receiver_thread(graph_t *topo){
@@ -194,20 +183,21 @@ send_pkt_out(char *pkt, unsigned int pkt_size, interface_t *interface){
 
 }
 
-//int
-//send_pkt_flood(node_t * node, interface_t *exempted_intf, char *pkt, unsigned int pkt_size){
-    //interface_t **intf_array = node->intf;
-    //if(intf_array == NULL)
-        //return -1;
+int
+send_pkt_flood(node_t * node, interface_t *exempted_intf, char *pkt, unsigned int pkt_size){
 
-    //for(int i = 0; i<MAX_INTF_PER_NODE ; i++){
-        //if(intf_array[i]==exempted_intf){
-            //int rc = send_pkt_out(pkt, pkt_size, intf_array[i]);
-            ////if(rc<0){ 
-                ////return -1;
-            ////}
-        ////}
+    interface_t **intf_array = node->intf;
 
-    //}     
-   //return 0; 
-//}
+    for(unsigned int i = 0; i<MAX_INTF_PER_NODE ; i++){
+
+        if(intf_array[i] == NULL) 
+            return 0;
+
+        if(intf_array[i] == exempted_intf)
+            continue;
+
+        send_pkt_out(pkt, pkt_size, intf_array[i]);
+        }     
+
+    return 0; 
+}

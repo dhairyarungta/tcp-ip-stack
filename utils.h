@@ -1,6 +1,8 @@
 #ifndef __UTILS__
 #define __UTILS__
 
+#include <stdint.h>
+
 typedef enum {
     FALSE,
     TRUE
@@ -20,5 +22,12 @@ layer2_fill_with_broadcast_mac(char *mac_array);
 #define COMPLEMENT(num) (num = num ^ 0xFFFFFFFF)
 #define UNSET_BIT(n,pos) (n = n & ((1 << pos) ^ 0xFFFFFFFF))
 #define SET_BIT(n,pos) (n = n|1 <<pos)
+
+char *
+tcp_ip_convert_ip_n_to_p(uint32_t ip_addr,
+        char *output_buffer);
+
+uint32_t
+tcp_ip_convert_ip_p_to_n(char *ip_addr);
 
 #endif

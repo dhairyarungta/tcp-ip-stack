@@ -90,4 +90,10 @@ convert_ip_from_str_to_int(char *ip_addr);
 void
 convert_ip_fron_int_to_str(unsigned int ip_addr, char *output_buffer);
 
+char *
+pkt_buffer_shift_right(char *pkt, unsigned int pkt_size,
+    unsigned int total_buffer_size);
+
+
+
 #endif

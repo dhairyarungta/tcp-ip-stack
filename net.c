@@ -94,6 +94,8 @@ void dump_intf_props(interface_t *interface){
 
 }
 
+/*does NOT manage byte ordering,
+assumes correct byte ordering is returned*/
 unsigned int
 ip_addr_p_to_n(char *ip_addr){  
     char *temp = (char *)calloc(1,sizeof(ip_add_t));
@@ -114,6 +116,8 @@ ip_addr_p_to_n(char *ip_addr){
 
 }
 
+/*does NOT manage byte ordering,
+assumes correct byte ordering is passed to argument*/
 void
 ip_addr_n_to_p(unsigned int ip_addr, char *ip_addr_str){
     unsigned int mask = 0xFF000000;
@@ -136,6 +140,10 @@ ip_addr_n_to_p(unsigned int ip_addr, char *ip_addr_str){
     memcpy(ip_addr_str,ip_p, sizeof(ip_add_t));
     return;
 }
+
+char *
+pkt_buffer_shift_right(char *pkt, unsigned int pkt_size, 
+    unsigned int total_buffer_size);
 
 unsigned int
 convert_ip_from_str_to_int(char *ip_addr){

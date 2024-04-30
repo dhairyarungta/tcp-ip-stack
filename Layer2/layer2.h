@@ -48,16 +48,15 @@ l2_frame_recv_qualify_interface(interface_t *interface,ethernet_hdr_t *ethernet_
     if(! IS_INTF_L3_MODE(interface)){
         return FALSE;
     }
-    else if(IS_INTF_L3_MODE(interface) && memcmp(ethernet_hdr->dst_mac.mac,IF_MAC(interface),sizeof(mac_add_t))==0)        
+    else if(memcmp(ethernet_hdr->dst_mac.mac,IF_MAC(interface),sizeof(mac_add_t))==0)        
     {
         return TRUE;
     }
-    else if(IS_INTF_L3_MODE(interface) && IS_MAC_BROADCAST_ADDR(ethernet_hdr->dst_mac.mac)){
+    else if(IS_MAC_BROADCAST_ADDR(ethernet_hdr->dst_mac.mac)){
         return TRUE;
     }
-    else {
-        return FALSE;
-    }
+
+    return FALSE;
     
 }
 
@@ -121,5 +120,8 @@ send_arp_broadcast_request(node_t *node, interface_t *oif, char *ip_addr);
 
 arp_entry_t *
 arp_table_lookup(arp_table_t *arp_table, char *ip_addr);
+
+void 
+layer2_frame_recv(node_t *node, interface_t *interface, char *pkt, unsigned int pkt_size);
 
 #endif
