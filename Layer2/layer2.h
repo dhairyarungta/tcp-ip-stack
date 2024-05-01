@@ -16,7 +16,7 @@ typedef struct apr_hdr_{
     mac_add_t src_mac;
     unsigned int src_ip;
     mac_add_t dst_mac;
-    unsigned int dsp_ip;
+    unsigned int dst_ip;
 }arp_hdr_t;
 
 typedef struct ethernet_hdr_ {
@@ -69,14 +69,13 @@ l2_frame_recv_qualify_interface(interface_t *interface,ethernet_hdr_t *ethernet_
     (*(unsigned int*)((char*)(eth_hdr_ptr)+2*sizeof(mac_add_t)\
     +sizeof(unsigned short)+payload_size))
 
+/*Never access FCS field directly because for allocated memory which is casted to 
+ethernet_hdr_t * size of payload is varying*/
 #define ETH_FCS(eth_hdr_ptr, payload_size) \
     (*(unsigned int *)(((char*)(((ethernet_hdr_t *)eth_hdr_ptr)->payload))+payload_size))
 
 static inline ethernet_hdr_t *
 ALLOC_ETH_HDR_WITH_PAYLOAD(char *pkt,unsigned int pkt_size){
-    //another possible implementation
-    //memmove supports overlapping memory
-    //memmove(pkt-sizeof(((ethernet_hdr_t*)0)->FCS),pkt,pkt_size );
 
     char *temp = (char *)calloc(1,pkt_size);
     memcpy(temp,pkt,pkt_size);
@@ -88,7 +87,6 @@ ALLOC_ETH_HDR_WITH_PAYLOAD(char *pkt,unsigned int pkt_size){
     return eth_hdr;
     
 }
-
 
 static void
 process_arp_reply_msg(node_t *node, interface_t *iif, ethernet_hdr_t *ethernet_hdr);
@@ -117,11 +115,15 @@ dump_arp_table(arp_table_t *arp_table);
 void
 send_arp_broadcast_request(node_t *node, interface_t *oif, char *ip_addr);
 
-
 arp_entry_t *
 arp_table_lookup(arp_table_t *arp_table, char *ip_addr);
 
 void 
-layer2_frame_recv(node_t *node, interface_t *interface, char *pkt, unsigned int pkt_size);
+layer2_frame_recv(node_t *node, interface_t *interface, 
+    char *pkt, unsigned int pkt_size);
 
+static inline char *
+GET_ETHERNET_HDR_PAYLOAD(ethernet_hdr_t *ethernet_hdr){
+    return ethernet_hdr->payload;
+}
 #endif

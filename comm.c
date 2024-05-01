@@ -39,8 +39,8 @@ _pkt_receive(node_t * receiving_node,char* pkt_with_aux_data , unsigned int pkt_
     char *recv_intf_name = pkt_with_aux_data;
     interface_t *recv_intf = get_node_if_by_name(receiving_node,recv_intf_name);
     if(!recv_intf){
-        printf("Error : Paket received on unknown interface %s on node %s\n"
-            ,recv_intf_name,receiving_node->node_name);
+        printf("Error : Paket received on unknown interface %s on node %s\n",
+            recv_intf_name,receiving_node->node_name);
         return ;
     }
     pkt_receive(receiving_node, recv_intf, pkt_with_aux_data+IF_NAME_SIZE, pkt_size-IF_NAME_SIZE);
