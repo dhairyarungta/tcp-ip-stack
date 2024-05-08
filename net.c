@@ -144,7 +144,22 @@ ip_addr_n_to_p(unsigned int ip_addr, char *ip_addr_str){
 char *
 pkt_buffer_shift_right(char *pkt, unsigned int pkt_size, 
     unsigned int total_buffer_size){
-    ;
+    
+    unsigned int left_space = total_buffer_size-pkt_size;
+
+    //check if overlap otherwise avoid memory allocation
+    if(pkt_size*2>total_buffer_size){
+        char *temp = calloc(1, pkt_size);
+        memcpy(temp, pkt, pkt_size);
+        memset(pkt, 0, total_buffer_size);
+        memcpy(pkt+left_space, temp, pkt_size);
+        free(temp);
+        return pkt+left_space;
+    }
+
+    memcpy(pkt+left_space, pkt, pkt_size);
+    memset(pkt, 0, pkt_size);
+    return pkt+left_space;
 }
 
 unsigned int
@@ -152,9 +167,10 @@ convert_ip_from_str_to_int(char *ip_addr){
 
     unsigned int prefix = 0 ;
     inet_pton(AF_INET, ip_addr, &prefix);
+    //prefix is now in network byte order i.e. big endian
 
-    /*Redundant since inet_pton fills prefix in network byte order*/
     prefix = htonl(prefix);
+    //reverses prefix from big endian to little endian
 
     /*Returns in host byte order*/
     return prefix;

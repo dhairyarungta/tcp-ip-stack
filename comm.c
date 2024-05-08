@@ -24,8 +24,8 @@ get_next_udp_port_number(){
 }
 
 int pkt_receive(node_t *node, interface_t *interface, char*pkt, unsigned int pkt_size){
-//    printf("Packet received by Node : %s, Interface : %s, Pkt Content : %s, Pkt size : %d\n",
-//        node->node_name, interface->if_name, pkt, pkt_size); 
+    //printf("Packet received by Node : %s, Interface : %s, Pkt Content : %s, Pkt size : %d\n",
+        //node->node_name, interface->if_name, pkt, pkt_size); 
 
     pkt_buffer_shift_right(pkt, pkt_size, MAX_PACKET_BUFFER_SIZE-IF_NAME_SIZE);
     layer2_frame_recv(node, interface, pkt, pkt_size);    

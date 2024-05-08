@@ -15,6 +15,8 @@ send_arp_broadcast_request(node_t *node, interface_t *oif, char *ip_addr){
     unsigned int payload_size = sizeof(arp_hdr_t);
     ethernet_hdr_t *ethernet_hdr = (ethernet_hdr_t *) calloc(1,payload_size + ETH_HDR_SIZE_EXCL_PAYLOAD);
     if(!oif){
+
+        /*oif is allowed to be NULL when the function is called*/
         oif = node_get_matching_subnet_interface(node, ip_addr);
         if(!oif){
             printf("Error Node : %s , No eligible subnet for ARP resolution for IP Address : %s",
@@ -93,8 +95,8 @@ process_arp_broadcast_request(node_t *node, interface_t *iif,
         ,__FUNCTION__,iif->if_name,iif->att_node->node_name);
     char ip_addr[16];
     arp_hdr_t *arp_hdr = (arp_hdr_t *)(GET_ETHERNET_HDR_PAYLOAD(ethernet_hdr));
-    /* ARP broadcast request msg has passed MAC Address check*/
-    /* Now, this node need to reply to this ARP Broadcast req
+    /* ARP broadcast request msg has passed MAC Address check
+     * Now, this node need to reply to this ARP Broadcast req
      * msg if Dst ip address in ARP req msg matches iif's ip address*/
 
     unsigned int arp_dst_ip = htonl(arp_hdr->dst_ip);
@@ -124,7 +126,9 @@ process_arp_reply_msg(node_t *node, interface_t *iif,
 void 
 layer2_frame_recv(node_t *node, interface_t *interface, 
     char *pkt, unsigned int pkt_size){
+
     /*Entry point into the TCP/IP stack after the physical layer*/
+
     ethernet_hdr_t *ethernet_hdr = (ethernet_hdr_t *)pkt;
     if(l2_frame_recv_qualify_on_interface(interface, ethernet_hdr) == FALSE){
         printf("L2 Frame Rejected\n");

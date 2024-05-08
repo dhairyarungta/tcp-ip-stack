@@ -54,6 +54,7 @@ tcp_ip_convert_ip_n_to_p(uint32_t ip_addr,
     out = !output_buffer ? str_ip : output_buffer;
     memset(out, 0, 16);
     ip_addr = htonl(ip_addr);
+
     /*inet_ntop requires input ip_addr in network byte order*/
     inet_ntop(AF_INET, &ip_addr, out, 16);
     out[15] = '\0';
