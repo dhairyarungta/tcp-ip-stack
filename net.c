@@ -143,7 +143,7 @@ ip_addr_n_to_p(unsigned int ip_addr, char *ip_addr_str){
 char *
 pkt_buffer_shift_right(char *pkt, unsigned int pkt_size, 
     unsigned int total_buffer_size){
-
+    ;
 }
 
 unsigned int
@@ -159,5 +159,25 @@ convert_ip_fron_int_to_str(unsigned int ip_addr, char *output_buffer){
 
 interface_t *
 node_get_matching_subnet_interface(node_t *node, char *ip_addr){
-    ;
+
+    char *ip_subnet = calloc(1, sizeof(ip_add_t)) ;
+    char *intf_subnet = calloc(1, sizeof(ip_add_t));
+
+    for(unsigned int i = 0; i < MAX_INTF_PER_NODE; i++){
+        interface_t* intf = (node->intf)[i];
+
+        if(!intf){
+            return NULL;
+        }
+
+        if(intf->intf_nw_props.is_ipadd_config == TRUE){
+            apply_mask(ip_addr, intf->intf_nw_props.mask, ip_subnet);
+            apply_mask(IF_IP(intf), intf->intf_nw_props.mask, intf_subnet);
+            if(strncmp(ip_subnet, intf_subnet, 16) == 0){
+                return intf;
+            }
+
+        }
+    }
+    return NULL;
 }

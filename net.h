@@ -12,6 +12,12 @@ typedef struct arp_table_ arp_table_t;
 
 extern void init_arp_table(arp_table_t **arp_table);
 
+typedef enum {
+    ACCESS,
+    TRUNK,
+    L2_MODE_UNKNOWN
+}intf_l2_mode_t;
+
 typedef struct ip_add_{
     unsigned char ip_addr[16];
 }ip_add_t;
@@ -31,6 +37,20 @@ typedef struct node_nw_prop_{
     
 }node_nw_prop_t;
 
+static inline char * 
+intf_l2_mode_str(intf_l2_mode_t intf_l2_mode){
+    switch (intf_l2_mode) {
+        case ACCESS:
+            return "access";
+        case TRUNK:
+            return "trunk";
+        default:
+            return "L2_MODE_UNKNOWN";
+    }
+}
+
+
+
 static inline void
 init_node_nw_prop(node_nw_prop_t *node_nw_prop){
     node_nw_prop->flags = 0;
@@ -45,9 +65,11 @@ typedef struct intf_nw_props_{
 
     /*L3 properties*/
     bool_t is_ipadd_config; /*Set to TRUE if ip add is configured
-                            intf operates in L3 mode if ip add is configured on the intf*/
+                            intf operates in L3 mode if ip addr is configured on the intf*/
     ip_add_t ip_add;
     char mask;
+    intf_l2_mode_t intf_l2_mode; /*if IP Address is configured 
+                                    then this is set to L2_MODE_UNKNOWN*/
 }intf_nw_props_t;
 
 static inline void

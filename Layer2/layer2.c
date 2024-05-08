@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include "../comm.h"
 
+extern void promote_pkt_to_layer3(node_t *node, interface_t *interface, 
+    char *pkt, unsigned int pkt_size);
+
 void 
 send_arp_broadcast_request(node_t *node, interface_t *oif, char *ip_addr){
 
@@ -123,7 +126,36 @@ layer2_frame_recv(node_t *node, interface_t *interface,
     char *pkt, unsigned int pkt_size){
     /*Entry point into the TCP/IP stack after the physical layer*/
     ethernet_hdr_t *ethernet_hdr = (ethernet_hdr_t *)pkt;
+    if(l2_frame_recv_qualify_on_interface(interface, ethernet_hdr) == FALSE){
+        printf("L2 Frame Rejected\n");
+        return;
+    }
     
+    printf("L3 Frame Accepted\n");
+
+    switch(ethernet_hdr->type){
+        case ARP_MSG :
+        {
+            arp_hdr_t *arp_hdr = (arp_hdr_t *)(ethernet_hdr->payload);
+            switch (arp_hdr->op_code) {
+                case ARP_BROAD_REQ :
+                    process_arp_broadcast_request(node, interface, ethernet_hdr); 
+                    break;
+                
+                case ARP_REPLY : 
+                    process_arp_reply_msg(node, interface, ethernet_hdr);
+                    break;
+                
+                default:
+                    break;
+            }
+            break;
+        }
+        default:
+            promote_pkt_to_layer3(node, interface, pkt, pkt_size);
+            break;
+    }
+
 }
 
 void 
@@ -213,3 +245,9 @@ dump_arp_table(arp_table_t *arp_table){
     }ITERATE_GLTHREAD_END(&arp_table->arp_entries, glthreadptr);
 }
 
+void
+node_set_intf_l2_mode(node_t *node, char *intf_name,
+    intf_l2_mode_t intf_l2_mode){
+        ;
+    
+}

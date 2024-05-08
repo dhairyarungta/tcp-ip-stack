@@ -28,7 +28,7 @@ show_arp_handler(param_t *param, ser_buff_t *tlv_buf,
         TLV_LOOP_BEGIN(tlv_buf, tlvptr){
             if(strncmp(tlvptr->leaf_id,"node-name",strlen("node-name"))==0){
                 node_name = tlvptr->value;
-            }
+             }
         }TLV_LOOP_END;
 
         node_t *node = get_node_by_node_name(topo, node_name);

@@ -122,8 +122,32 @@ void
 layer2_frame_recv(node_t *node, interface_t *interface, 
     char *pkt, unsigned int pkt_size);
 
+static inline bool_t
+l2_frame_recv_qualify_on_interface(interface_t *interface, 
+    ethernet_hdr_t *ethernet_hdr){
+    
+    if(!interface->intf_nw_props.is_ipadd_config){
+        return FALSE;
+    }
+
+    if(memcmp(IF_MAC(interface),ethernet_hdr->dst_mac.mac,sizeof(mac_add_t)) == 0){
+        return TRUE;
+    }
+
+    if(IS_MAC_BROADCAST_ADDR(ethernet_hdr->dst_mac.mac)){
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 static inline char *
 GET_ETHERNET_HDR_PAYLOAD(ethernet_hdr_t *ethernet_hdr){
     return ethernet_hdr->payload;
 }
+
+void
+node_set_intf_l2_mode(node_t *node, char *intf_name,
+    intf_l2_mode_t intf_l2_mode);
+
 #endif

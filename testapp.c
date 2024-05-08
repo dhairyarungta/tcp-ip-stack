@@ -9,16 +9,19 @@
 #include <stdlib.h>
 
 extern graph_t *build_first_topo();
+extern graph_t *build_simple_l2_switch_topo();
 extern void nw_init_cli();
 
 graph_t *topo = NULL;
 
 int 
 main(int argc, char** argv){
-    char ip_addr[16];
-    unsigned int ip_uint =2131495937 ;
-    ip_addr_n_to_p(ip_uint, ip_addr);
-    printf("%s\n",ip_addr);
+
+    return 0;    
+    //char ip_addr[16];
+    //unsigned int ip_uint = ;
+    //ip_addr_n_to_p(ip_uint, ip_addr);
+    //printf("%s\n",ip_addr);
 
 
     //printf("%u\n",ip_addr_p_to_n("127.0.0.1")); 
@@ -26,7 +29,6 @@ main(int argc, char** argv){
     //nw_init_cli();
     //topo = build_first_topo();
 
-    return 0;    
 
     //printf("%d\n",(int)ETH_HDR_SIZE_EXCL_PAYLOAD);
     //printf("%d\n",(int)ETH_HDR_SIZE_EXCL_PAYLOAD1);
