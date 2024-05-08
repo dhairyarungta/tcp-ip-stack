@@ -5,6 +5,7 @@
 #include <memory.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <arpa/inet.h>
 
 static unsigned int
 hash_code(void *ptr, unsigned int size){
@@ -148,13 +149,25 @@ pkt_buffer_shift_right(char *pkt, unsigned int pkt_size,
 
 unsigned int
 convert_ip_from_str_to_int(char *ip_addr){
-    ;
+
+    unsigned int prefix = 0 ;
+    inet_pton(AF_INET, ip_addr, &prefix);
+
+    /*Redundant since inet_pton fills prefix in network byte order*/
+    prefix = htonl(prefix);
+
+    /*Returns in host byte order*/
+    return prefix;
 }
 
 
 void
 convert_ip_fron_int_to_str(unsigned int ip_addr, char *output_buffer){
-    ;
+
+    output_buffer = !output_buffer ? calloc(1, sizeof(ip_add_t)): output_buffer;
+    ip_addr = htonl(ip_addr);
+    inet_ntop(AF_INET, &ip_addr, output_buffer, 16);
+    output_buffer[15] = '\0';
 }
 
 interface_t *
