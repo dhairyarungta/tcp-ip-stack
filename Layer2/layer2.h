@@ -43,14 +43,13 @@ typedef struct arp_table_{
 
 GLTHREAD_TO_STRUCT(arp_glue_to_arp, arp_entry_t, arp_glue);
 
-
 static inline bool_t 
 l2_frame_recv_qualify_interface(interface_t *interface,ethernet_hdr_t *ethernet_hdr){
     if(! IS_INTF_L3_MODE(interface)){
         return FALSE;
     }
     else if(memcmp(ethernet_hdr->dst_mac.mac,IF_MAC(interface),sizeof(mac_add_t))==0)        
-    {
+    {jjjj
         return TRUE;
     }
     else if(IS_MAC_BROADCAST_ADDR(ethernet_hdr->dst_mac.mac)){
@@ -74,6 +73,11 @@ l2_frame_recv_qualify_interface(interface_t *interface,ethernet_hdr_t *ethernet_
 ethernet_hdr_t * size of payload is varying*/
 #define ETH_FCS(eth_hdr_ptr, payload_size) \
     (*(unsigned int *)(((char*)(((ethernet_hdr_t *)eth_hdr_ptr)->payload))+payload_size))
+
+#define IS_ARP_ENTRIES_EQUAL(arp_entry_1, arp_entry_2)\
+    (strncmp(arp_entry_1->ip_addr.ip_addr, arp_entry_2->ip_addr.ip_addr,16) == 0 &&\
+    strncmp(arp_entry_1->mac_addr.mac, arp_entry_2->mac_addr.mac, 6) == 0 && \
+    strncmp(arp_entry_1->oif_name, arp_entry_2->oif_name, IF_NAME_SIZE) == 0)
 
 static inline ethernet_hdr_t *
 ALLOC_ETH_HDR_WITH_PAYLOAD(char *pkt,unsigned int pkt_size){
