@@ -9,8 +9,10 @@ typedef struct graph_ graph_t;
 typedef struct interface_ interface_t;
 typedef struct node_ node_t;
 typedef struct arp_table_ arp_table_t;
+typedef struct mac_table_ mac_table_t;
 
 extern void init_arp_table(arp_table_t **arp_table);
+extern void init_mac_table(mac_table_t **mac_table);
 
 typedef enum {
     ACCESS,
@@ -30,7 +32,7 @@ typedef struct node_nw_prop_{
     /*To find various node device capabilities*/
     unsigned int flags;
     arp_table_t *arp_table;      
-
+    mac_table_t *mac_table;
     /*L3 properties*/
     bool_t is_lb_addr_config;
     ip_add_t lb_addr; /*loopback address of node*/
@@ -57,6 +59,7 @@ init_node_nw_prop(node_nw_prop_t *node_nw_prop){
     node_nw_prop->is_lb_addr_config = FALSE;
     memset(node_nw_prop->lb_addr.ip_addr,0, 16);
     init_arp_table(&(node_nw_prop->arp_table));
+    init_mac_table(&(node_nw_prop->mac_table));
 }
 
 typedef struct intf_nw_props_{
@@ -91,6 +94,9 @@ interface_assign_mac_address(interface_t *interface);
 
 #define IS_INTF_L3_MODE(intf_ptr)((intf_ptr->intf_nw_props.is_ipadd_config==TRUE)&&(IF_IP(intf_ptr)!=NULL))
 #define NODE_ARP_TABLE(node) (node->node_nw_prop.arp_table)
+#define NODE_MAC_TABLE(node) (node->node_nw_prop.mac_table)
+#define IF_L2_MODE(intf_ptr) (interface->intf_nw_props.intf_l2_mode)
+
 
 bool_t node_set_loopback_address(node_t *node, char *ip_addr);
 bool_t node_set_intf_ip_address(node_t *node, char *local_if, char *ip_addr, char mask);

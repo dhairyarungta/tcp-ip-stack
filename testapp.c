@@ -18,7 +18,7 @@ int
 main(int argc, char** argv){
 
     nw_init_cli();
-    topo = build_first_topo();
+    topo = build_simple_l2_switch_topo();
     start_shell();
     return 0;    
 

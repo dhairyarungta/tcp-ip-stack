@@ -202,3 +202,25 @@ send_pkt_flood(node_t * node, interface_t *exempted_intf, char *pkt, unsigned in
 
     return 0; 
 }
+
+int
+send_pkt_flood_l2_intf_only(node_t *node, interface_t *exempted_intf,
+    char *pkt, unsigned int pkt_size){
+    
+    interface_t* interface = NULL;
+    for (unsigned int i = 0; i < MAX_INTF_PER_NODE; i++){
+        interface = (node->intf)[i];
+
+        if(!interface)
+            return 0;
+
+        if(interface == exempted_intf)
+            continue;
+        else if(!IS_INTF_L3_MODE(interface) && IF_L2_MODE(interface)!=L2_MODE_UNKNOWN){
+            send_pkt_out(pkt, pkt_size, interface);
+        }
+    }
+
+    return 0;
+
+}
