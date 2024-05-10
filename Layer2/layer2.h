@@ -49,7 +49,7 @@ l2_frame_recv_qualify_interface(interface_t *interface,ethernet_hdr_t *ethernet_
         return FALSE;
     }
     else if(memcmp(ethernet_hdr->dst_mac.mac,IF_MAC(interface),sizeof(mac_add_t))==0)        
-    {jjjj
+    {
         return TRUE;
     }
     else if(IS_MAC_BROADCAST_ADDR(ethernet_hdr->dst_mac.mac)){
