@@ -49,7 +49,6 @@ send_arp_broadcast_request(node_t *node, interface_t *oif, char *ip_addr){
 
     send_pkt_out((char *)ethernet_hdr, ETH_HDR_SIZE_EXCL_PAYLOAD+payload_size, oif);
     free(ethernet_hdr);
-    
 }
 
 static void 
@@ -207,7 +206,7 @@ arp_table_update_from_arp_reply(arp_table_t *arp_table,
     assert(arp_hdr->op_code == ARP_REPLY);
     arp_entry_t *arp_entry = calloc(1, sizeof(arp_entry_t));
     src_ip = htonl(arp_hdr->src_ip);
-    inet_ntop(AF_INET, &src_ip, &arp_entry->ip_addr.ip_addr, 16);
+    inet_ntop(AF_INET, &src_ip, arp_entry->ip_addr.ip_addr, 16);
     arp_entry->ip_addr.ip_addr[15] = '\0';
     memcpy(arp_entry->mac_addr.mac,arp_hdr->src_mac.mac,sizeof(mac_add_t));
     strncpy(arp_entry->oif_name, iif->if_name, IF_NAME_SIZE);

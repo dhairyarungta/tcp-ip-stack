@@ -79,7 +79,7 @@ void dump_node_nw_props(node_t *node){
     printf("\nNode name : %s\n",node->node_name);
     printf("\tFlags : %u\n",node->node_nw_prop.flags);
     if(node->node_nw_prop.is_lb_addr_config==TRUE)
-        printf("\tIP Addr : %s",NODE_LO_ADDR(node));
+        printf("\tIP Addr : %s\n",NODE_LO_ADDR(node));
 
 }
 void dump_intf_props(interface_t *interface){
@@ -89,7 +89,7 @@ void dump_intf_props(interface_t *interface){
     else
         printf("\tIntf IP Addr : %s\n","Nil");
 
-    printf("MAC Address : %u:%u:%u:%u:%u:%u:%u:%u\n",IF_MAC(interface)[0],IF_MAC(interface)[1],IF_MAC(interface)[2],
+    printf("MAC Address : %u:%u:%u:%u:%u:%u\n",IF_MAC(interface)[0],IF_MAC(interface)[1],IF_MAC(interface)[2],
     IF_MAC(interface)[3],IF_MAC(interface)[4],IF_MAC(interface)[5]);
 
 }

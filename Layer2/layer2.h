@@ -5,6 +5,7 @@
 #include "../net.h"
 #include "../gluethread/glthread.h"
 #include "../graph.h"
+#include <stdlib.h>
 
 #pragma pack(push,1)
 typedef struct apr_hdr_{

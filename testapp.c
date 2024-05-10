@@ -17,7 +17,11 @@ graph_t *topo = NULL;
 int 
 main(int argc, char** argv){
 
+    nw_init_cli();
+    topo = build_first_topo();
+    start_shell();
     return 0;    
+
     //char ip_addr[16];
     //unsigned int ip_uint = ;
     //ip_addr_n_to_p(ip_uint, ip_addr);

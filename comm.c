@@ -27,7 +27,8 @@ int pkt_receive(node_t *node, interface_t *interface, char*pkt, unsigned int pkt
     //printf("Packet received by Node : %s, Interface : %s, Pkt Content : %s, Pkt size : %d\n",
         //node->node_name, interface->if_name, pkt, pkt_size); 
 
-    pkt_buffer_shift_right(pkt, pkt_size, MAX_PACKET_BUFFER_SIZE-IF_NAME_SIZE);
+    pkt = pkt_buffer_shift_right(pkt, pkt_size, MAX_PACKET_BUFFER_SIZE-IF_NAME_SIZE);
+
     layer2_frame_recv(node, interface, pkt, pkt_size);    
     return 0;
 
@@ -55,8 +56,8 @@ _send_pkt_out (int sock_fd, char *pkt_data, unsigned int pkt_size, unsigned int 
     struct hostent *host = (struct hostent*) gethostbyname("127.0.0.1");
 
     dest_addr.sin_family = AF_INET;
-    dest_addr.sin_addr = *((struct in_addr *)host->h_addr);
     dest_addr.sin_port = dst_udp_port_no;
+    dest_addr.sin_addr = *((struct in_addr *)host->h_addr);
 
     rc = sendto(sock_fd, pkt_data, pkt_size,0, (struct sockaddr*)&dest_addr, sizeof(struct sockaddr));
 
