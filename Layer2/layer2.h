@@ -2,6 +2,7 @@
 #define __LAYER2__
 
 #include <string.h>
+#include <stdio.h>
 #include "../net.h"
 #include "../gluethread/glthread.h"
 #include "../graph.h"
@@ -139,7 +140,12 @@ static inline void
 SET_COMMON_ETH_FCS(ethernet_hdr_t *ethernet_hdr,
     unsigned int payload_size, unsigned int new_fcs){
 
-    (GET_COMMON_ETH_FCS(ethernet_hdr, payload_size)) = new_fcs;
+    if(is_pkt_vlan_tagged(ethernet_hdr)!=NULL){
+        VLAN_ETH_FCS((vlan_ethernet_hdr_t *)ethernet_hdr, payload_size) = new_fcs;
+    }
+    else{
+        ETH_FCS(ethernet_hdr, payload_size);
+    }
 }
 
 static inline unsigned int
@@ -251,11 +257,13 @@ void
 l2_switch_recv_frame(interface_t *interface, 
     char *pkt, unsigned int pkt_size);
 
+
 ethernet_hdr_t *
 tag_pkt_with_vlan_id(ethernet_hdr_t *ethernet_hdr, unsigned int total_pkt_size,
-    int vlan_id, unsigned int *new_pkt_size){
+    int vlan_id, unsigned int *new_pkt_size);
 
-
-}
+ethernet_hdr_t *
+untag_pkt_with_vlan_id(ethernet_hdr_t *ethernet_hdr, unsigned int total_pkt_size,
+    unsigned int *new_pkt_size);
 
 #endif

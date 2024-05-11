@@ -290,3 +290,63 @@ node_set_intf_l2_mode(node_t *node, char *intf_name,
             IF_L2_MODE(interface) = intf_l2_mode;
     }
 }
+
+
+ethernet_hdr_t *
+tag_pkt_with_vlan_id(ethernet_hdr_t *ethernet_hdr, unsigned int total_pkt_size,
+    int vlan_id, unsigned int *new_pkt_size){
+
+    //pkt to argument are right shifted, implies enough space on left to add vlan tag fields
+    vlan_8021q_hdr_t *vlan_8021q_hdr = is_pkt_vlan_tagged(ethernet_hdr);
+    if(vlan_8021q_hdr!=NULL){
+        vlan_8021q_hdr->tci_vid = vlan_id;
+        return ethernet_hdr;
+    }
+
+    ethernet_hdr_t *ethernet_hdr_old = (ethernet_hdr_t *)calloc(1, total_pkt_size);
+    memcpy(ethernet_hdr_old, ethernet_hdr, total_pkt_size);
+    vlan_ethernet_hdr_t *vlan_ethernet_hdr_new = (vlan_ethernet_hdr_t *)(((char *)ethernet_hdr)- sizeof(vlan_8021q_hdr_t));
+    unsigned int payload_size = total_pkt_size - ETH_HDR_SIZE_EXCL_PAYLOAD;
+
+    memset(vlan_ethernet_hdr_new, 0, VLAN_ETH_HDR_SIZE_EXCL_PAYLOAD+payload_size);
+
+    strncpy(vlan_ethernet_hdr_new->src_mac.mac,ethernet_hdr_old->src_mac.mac,sizeof(mac_add_t));
+    strncpy(vlan_ethernet_hdr_new->dst_mac.mac,ethernet_hdr_old->dst_mac.mac, sizeof(mac_add_t));
+    memcpy(vlan_ethernet_hdr_new->payload, ethernet_hdr_old->payload, payload_size);
+    vlan_ethernet_hdr_new->type = ethernet_hdr_old->type;
+    VLAN_ETH_FCS(vlan_ethernet_hdr_new, payload_size) = ETH_FCS(ethernet_hdr_old, payload_size);
+    vlan_8021q_hdr_t *vlan_8021q_hdr_new = (vlan_8021q_hdr_t *)(vlan_ethernet_hdr_new->payload);
+    vlan_8021q_hdr_new->tci_vid = vlan_id;
+
+    *new_pkt_size = VLAN_ETH_HDR_SIZE_EXCL_PAYLOAD + payload_size;
+    free(ethernet_hdr_old);
+    return (ethernet_hdr_t *)vlan_ethernet_hdr_new;
+}
+
+ethernet_hdr_t *
+untag_pkt_with_vlan_id(ethernet_hdr_t *ethernet_hdr, unsigned int total_pkt_size,
+    unsigned int *new_pkt_size){
+        
+    vlan_8021q_hdr_t *vlan_8021q_hdr = is_pkt_vlan_tagged(ethernet_hdr);
+    if(vlan_8021q_hdr == NULL){
+        return ethernet_hdr;
+    }
+
+    vlan_ethernet_hdr_t *vlan_ethernet_hdr_old = (vlan_ethernet_hdr_t *)calloc(1, total_pkt_size);
+    unsigned int payload_size = total_pkt_size - VLAN_ETH_HDR_SIZE_EXCL_PAYLOAD;
+    memcpy(vlan_ethernet_hdr_old, ethernet_hdr, total_pkt_size);
+
+    memset(ethernet_hdr, 0, total_pkt_size);    
+    
+    ethernet_hdr_t *ethernet_hdr_new = (ethernet_hdr_t *)((char *)ethernet_hdr) + sizeof(vlan_8021q_hdr_t);
+    strncpy(ethernet_hdr_new->dst_mac.mac, vlan_ethernet_hdr_old->dst_mac.mac, sizeof(mac_add_t));
+    strncpy(ethernet_hdr_new->src_mac.mac, vlan_ethernet_hdr_old->src_mac.mac, sizeof(mac_add_t));
+    memcpy(ethernet_hdr_new->payload, vlan_ethernet_hdr_old->payload, payload_size);
+    ethernet_hdr_new->type = vlan_ethernet_hdr_old->type;
+    ETH_FCS(ethernet_hdr_new, payload_size) = VLAN_ETH_FCS(vlan_ethernet_hdr_old, payload_size);
+
+    *new_pkt_size = ETH_HDR_SIZE_EXCL_PAYLOAD + payload_size;
+    free(vlan_ethernet_hdr_old);
+    return ethernet_hdr_new;
+    
+}
