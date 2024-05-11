@@ -9,6 +9,7 @@
 
 static unsigned int
 hash_code(void *ptr, unsigned int size){
+
     unsigned int value = 0;
     unsigned int i = 0;
     char *str = (char*)ptr;
@@ -23,6 +24,7 @@ hash_code(void *ptr, unsigned int size){
 
 void 
 interface_assign_mac_address(interface_t *interface){
+
     node_t *node = interface->att_node;
     if(!node)
         return;
@@ -36,15 +38,16 @@ interface_assign_mac_address(interface_t *interface){
 
 
 bool_t node_set_loopback_address(node_t *node, char *ip_addr){
-    assert(ip_addr);
 
-   node->node_nw_prop.is_lb_addr_config = TRUE;
-   strncpy(NODE_LO_ADDR(node),ip_addr,16);
-   NODE_LO_ADDR(node)[15]='\0';
-   return TRUE;
+    assert(ip_addr);
+    node->node_nw_prop.is_lb_addr_config = TRUE;
+    strncpy(NODE_LO_ADDR(node),ip_addr,16);
+    NODE_LO_ADDR(node)[15]='\0';
+    return TRUE;
 }
 
 bool_t node_set_intf_ip_address(node_t *node, char *local_if, char *ip_addr, char mask){
+
     interface_t *interface = get_node_if_by_name(node, local_if);
 
     assert(interface!=NULL);
@@ -57,6 +60,7 @@ bool_t node_set_intf_ip_address(node_t *node, char *local_if, char *ip_addr, cha
 }
 
 void dump_nw_graph(graph_t *graph){
+    
     printf("\nGraph Name : %s\n", graph->topology_name);
     glthread_t *glthreadptr = NULL;
     node_t *node = NULL;
@@ -76,28 +80,44 @@ void dump_nw_graph(graph_t *graph){
 }
 
 void dump_node_nw_props(node_t *node){
+
     printf("\nNode name : %s\n",node->node_name);
-    printf("\tFlags : %u\n",node->node_nw_prop.flags);
     if(node->node_nw_prop.is_lb_addr_config==TRUE)
-        printf("\tIP Addr : %s\n",NODE_LO_ADDR(node));
+        printf("Loopback IP Addr : %s\n\n",NODE_LO_ADDR(node));
 
 }
 void dump_intf_props(interface_t *interface){
+
     dump_interface(interface);
+    char *mode = NULL;
+    if(IF_L2_MODE(interface) == ACCESS){
+        mode = "Access\0";
+    }
+    else if(IF_L2_MODE(interface) == TRUNK){
+        mode = "Trunk\0";
+    }
+    else if(IF_L2_MODE(interface) == L2_MODE_UNKNOWN){
+        mode = "L2 Mode Unknown\0";
+    }
+    else {
+        assert(0);
+    }
+
+    printf("\tIntf Mode : %s\n",mode);
     if(interface->intf_nw_props.is_ipadd_config == TRUE)
         printf("\tIntf IP Addr : %s, Mask : %u\n",IF_IP(interface), interface->intf_nw_props.mask);
     else
         printf("\tIntf IP Addr : %s\n","Nil");
 
-    printf("MAC Address : %u:%u:%u:%u:%u:%u\n",IF_MAC(interface)[0],IF_MAC(interface)[1],IF_MAC(interface)[2],
+    printf("\tMAC Address : %u:%u:%u:%u:%u:%u\n\n",IF_MAC(interface)[0],IF_MAC(interface)[1],IF_MAC(interface)[2],
     IF_MAC(interface)[3],IF_MAC(interface)[4],IF_MAC(interface)[5]);
-
 }
 
 /*does NOT manage byte ordering,
 assumes correct byte ordering is returned*/
 unsigned int
 ip_addr_p_to_n(char *ip_addr){  
+
     char *temp = (char *)calloc(1,sizeof(ip_add_t));
     strncpy(temp,ip_addr,strnlen(ip_addr,sizeof(ip_add_t)));
     char* delimiter_character = ".";
@@ -120,6 +140,7 @@ ip_addr_p_to_n(char *ip_addr){
 assumes correct byte ordering is passed to argument*/
 void
 ip_addr_n_to_p(unsigned int ip_addr, char *ip_addr_str){
+
     unsigned int mask = 0xFF000000;
     int shitf_count = 24;
      char ip_p [sizeof(ip_add_t)];

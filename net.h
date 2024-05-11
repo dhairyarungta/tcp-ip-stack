@@ -81,6 +81,7 @@ init_intf_nw_prop(intf_nw_props_t *intf_nw_props){
     intf_nw_props->is_ipadd_config = FALSE;
     memset(intf_nw_props->ip_add.ip_addr,0,16);
     intf_nw_props->mask = 0;
+    intf_nw_props->intf_l2_mode = L2_MODE_UNKNOWN;
 }
 
 void

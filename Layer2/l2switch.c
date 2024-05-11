@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "../net.h"
 #include "../comm.h"
 #include "../graph.h"
@@ -17,7 +18,8 @@ typedef struct mac_table_{
 GLTHREAD_TO_STRUCT(mac_entry_glue_to_mac_entry ,mac_table_entry_t, mac_entry_glue);
 
 #define IS_MAC_TABLE_ENTRY_EQUAL(mac_table_entry_1, mac_table_entry_2)\
-    (strncmp()==0 && strncmp()==0)
+    (strncmp(mac_table_entry_1->mac.mac, mac_table_entry_2->mac.mac, 6)==0 && \
+    strncmp(mac_table_entry_1->oif_name, mac_table_entry_2->oif_name, IF_NAME_SIZE)==0)
 
 
 mac_table_entry_t *
@@ -33,13 +35,6 @@ mac_table_lookup(mac_table_t *mac_table, char *mac){
     }
     ITERATE_GLTHREAD_END(&mac_table->mac_entries, glthreadptr);
     return NULL;
-}
-
-bool_t 
-mac_table_entry_add(mac_table_t *mac_table, mac_table_entry_t *mac_table_entry){
-
-    mac_table_entry_t *mac_table_entry_old = mac_table_lookup(mac_table, mac_table_entry->mac.mac);
-    
 }
 
 void
@@ -60,9 +55,35 @@ init_mac_table(mac_table_t **mac_table){
     init_glthread(&((*mac_table)->mac_entries));
 }
 
+bool_t 
+mac_table_entry_add(mac_table_t *mac_table, mac_table_entry_t *mac_table_entry){
+
+    mac_table_entry_t *mac_table_entry_old = mac_table_lookup(mac_table, mac_table_entry->mac.mac);
+    if(mac_table_entry_old && IS_MAC_TABLE_ENTRY_EQUAL(mac_table_entry_old, mac_table_entry)){
+        return FALSE;
+    }
+
+    if(mac_table_entry_old){
+        delete_mac_table_entry(mac_table, mac_table_entry_old->mac.mac);
+    }
+    
+    init_glthread(&mac_table_entry->mac_entry_glue);
+    glthread_add_next(&mac_table->mac_entries, &mac_table_entry->mac_entry_glue);
+    return TRUE;
+}
+
 static void
 l2_switch_perform_mac_learning(node_t *node, char *src_mac, char *intf_name){
-    
+
+    mac_table_t *mac_table = node->node_nw_prop.mac_table;
+    mac_table_entry_t *mac_table_entry_new = (mac_table_entry_t *) calloc(1, sizeof(mac_table_entry_t));
+    strncpy(mac_table_entry_new->oif_name, intf_name, IF_NAME_SIZE);
+    mac_table_entry_new->oif_name[IF_NAME_SIZE-1] = '\0';
+    strncpy(mac_table_entry_new->mac.mac, src_mac, sizeof(mac_add_t));
+
+    if(mac_table_entry_add(mac_table, mac_table_entry_new) == FALSE){
+        free(mac_table_entry_new);
+    }
 }
 
 static void
@@ -100,4 +121,25 @@ l2_switch_recv_frame(interface_t *interface,
     
    l2_switch_perform_mac_learning(node, src_mac, interface->if_name);
    l2_switch_forward_frame(node, interface, pkt, pkt_size);
+}
+
+void
+dump_mac_table(mac_table_t *mac_table){
+
+    printf("MAC Table :\n\t MAC Address, Outgoing Intf Name\n");
+    
+    mac_table_entry_t *mac_table_entry = NULL;
+    glthread_t *glthreadptr = NULL;
+
+    ITERATE_GLTHREAD_BEGIN(&mac_table->mac_entries, glthreadptr){
+        mac_table_entry = mac_entry_glue_to_mac_entry(glthreadptr);
+        printf("\t %u:%u:%u:%u:%u:%u, %s\n", 
+                mac_table_entry->mac.mac[0],
+                mac_table_entry->mac.mac[1],
+                mac_table_entry->mac.mac[2],
+                mac_table_entry->mac.mac[3],
+                mac_table_entry->mac.mac[4],
+                mac_table_entry->mac.mac[5],
+                mac_table_entry->oif_name);
+    }ITERATE_GLTHREAD_END(&mac_table->mac_entries, glthreadptr);
 }

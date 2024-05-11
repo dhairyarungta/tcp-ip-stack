@@ -8,6 +8,7 @@
 extern graph_t *topo;
 extern void send_arp_broadcast_request(node_t *node, interface_t *oif, char *ip_addr);
 extern void dump_arp_table(arp_table_t *arp_table);
+extern void dump_mac_table(mac_table_t *mac_table);
 
 static int
 validate_node_name (char *value){
@@ -60,12 +61,12 @@ arp_handler (param_t *param, ser_buff_t *tlv_buf,
         send_arp_broadcast_request(node, NULL, ip_addr);
         //printf("Node Name : %s, IP Address : %s", node_name,ip_addr);
         return 0;
-
 }
 
 static int
 show_nw_topology_handler(param_t *param, ser_buff_t *tlv_buf, 
     op_mode enable_or_disable){
+
         int cmd_code= -1;
         cmd_code = EXTRACT_CMD_CODE(tlv_buf);
         //printf("cmd_code = %d", cmd_code);
@@ -78,6 +79,23 @@ show_nw_topology_handler(param_t *param, ser_buff_t *tlv_buf,
         }
 
         return 0;
+}
+
+static int
+show_mac_handler(param_t *param, ser_buff_t *tlv_buf, 
+    op_mode enable_or_disable){
+
+    char *node_name = NULL;
+    tlv_struct_t *tlvptr = NULL;
+    TLV_LOOP_BEGIN(tlv_buf, tlvptr){
+        if(strncmp(tlvptr->leaf_id, "node-name", NODE_NAME_SIZE)==0){
+            node_name = tlvptr->value;
+        }
+    }TLV_LOOP_END;
+
+    node_t *node = get_node_by_node_name(topo, node_name);
+    dump_mac_table(node->node_nw_prop.mac_table);
+    return 0;
 }
 
 void
@@ -115,10 +133,13 @@ nw_init_cli(){
                 set_param_cmd_code(&arp, CMDCODE_SHOW_NODE_ARP_TABLE);
                 
 
-                
+                /*show node <node-name> mac*/                
+                static param_t mac;
+                init_param(&mac, CMD, "mac", show_mac_handler, 0, INVALID, 0, "\"mac\" keyword");
+                libcli_register_param(&node_name, &mac);
+                set_param_cmd_code(&mac, CMDCODE_SHOW_NODE_MAC_TABLE);
             }
         }
-
     }
 
     {

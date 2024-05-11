@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-g
 TARGET:test.exe
 LIBS : -lpthread -L ./CommandParser -lcli
-OBJS=gluethread/glthread.o graph.o topologies.o CommandParser/libcli.a net.o utils.o nwcli.o comm.o Layer2/layer2.o Layer3/layer3.o
+OBJS=gluethread/glthread.o graph.o topologies.o CommandParser/libcli.a net.o utils.o nwcli.o comm.o Layer2/layer2.o Layer3/layer3.o Layer2/l2switch.o
 
 test.exe:testapp.o ${OBJS} 
 	${CC} ${CFLAGS} testapp.o ${OBJS} ${LIBS} -o test.exe 
@@ -28,6 +28,8 @@ CommandParser/libcli.a:
 	(cd CommandParser; make)
 Layer2/layer2.o:Layer2/layer2.c
 	${CC} ${CFLAGS} -c -I . Layer2/layer2.c -o Layer2/layer2.o
+Layer2/l2switch.o:Layer2/l2switch.c
+	${CC} ${CFLAGS} -c -I . Layer2/l2switch.c -o Layer2/l2switch.o
 Layer3/layer3.o:Layer3/layer3.c
 	${CC} ${CFLAGS} -c -I . Layer3/layer3.c -o Layer3/layer3.o
 clean:

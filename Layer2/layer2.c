@@ -195,7 +195,7 @@ arp_table_entry_add(arp_table_t *arp_table, arp_entry_t *arp_entry){
 
     arp_entry_t * arp_entry_old = arp_table_lookup(arp_table, arp_entry->ip_addr.ip_addr);
     
-    if(arp_entry_old && memcmp(arp_entry_old, arp_entry, sizeof(arp_entry_t))==0){
+    if(arp_entry_old && IS_ARP_ENTRIES_EQUAL(arp_entry, arp_entry_old)){
         return FALSE;
     }
     
@@ -260,7 +260,33 @@ dump_arp_table(arp_table_t *arp_table){
 
 void
 node_set_intf_l2_mode(node_t *node, char *intf_name,
-    intf_l2_mode_t intf_l2_mode){
-        ;
+    intf_l2_mode_t intf_l2_mode){  
     
+    interface_t *interface = get_node_if_by_name(node, intf_name);
+    if(!interface){
+        return ;
+    }
+
+    if(IF_L2_MODE(interface) == intf_l2_mode){
+        return ;
+    }
+
+    switch(intf_l2_mode){
+        case ACCESS:
+            if(IS_INTF_L3_MODE(interface))
+                interface->intf_nw_props.is_ipadd_config = FALSE;
+
+            IF_L2_MODE(interface) = intf_l2_mode;
+            break;
+
+        case TRUNK:
+            if(IS_INTF_L3_MODE(interface))
+                interface->intf_nw_props.is_ipadd_config = FALSE;
+
+            IF_L2_MODE(interface) = intf_l2_mode;
+            break;
+
+        case L2_MODE_UNKNOWN:
+            IF_L2_MODE(interface) = intf_l2_mode;
+    }
 }

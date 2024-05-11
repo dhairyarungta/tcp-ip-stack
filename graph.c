@@ -7,6 +7,7 @@
 void
 insert_link_between_two_nodes(node_t *node1,
     node_t *node2, char* from_if_name, char *to_if_name, unsigned int cost){
+        
         link_t* link = calloc(1,sizeof(link_t));
         
         strncpy(link->intf1.if_name, from_if_name,IF_NAME_SIZE);
@@ -29,12 +30,11 @@ insert_link_between_two_nodes(node_t *node1,
         /*Assign random generated MAC address to each interface*/
         interface_assign_mac_address(&link->intf1);
         interface_assign_mac_address(&link->intf2);
-        
-                
 }
 
 node_t*
 create_graph_node(graph_t *graph, char *node_name){
+
     node_t *node = calloc(1,sizeof(node_t));
     strncpy(node->node_name,node_name,NODE_NAME_SIZE);
     node->node_name[NODE_NAME_SIZE-1] = '\0';
@@ -48,6 +48,7 @@ create_graph_node(graph_t *graph, char *node_name){
 
 graph_t* 
 create_new_graph(char *topology_name){
+
     graph_t *graph = calloc(1, sizeof(graph_t));
     init_glthread(&graph->node_list);
     strncpy(graph->topology_name,topology_name,32);
@@ -88,6 +89,6 @@ dump_interface(interface_t *interface){
     node_t *nbr_node = get_nbr_node(interface);
     link_t *link = interface->link; 
 
-    printf("  Local Node: %s, Interface Name:  %s, Nbr Node: %s, Cost = %u\n",
-        att_node->node_name,interface->if_name,nbr_node->node_name,link->cost );
+    printf("\tInterface Name:  %s\n\tLocal Node: %s,  Nbr Node: %s, Cost = %u\n",
+        interface->if_name, att_node->node_name, nbr_node->node_name,link->cost );
 }
