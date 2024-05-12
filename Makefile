@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-g
 TARGET:test.exe
 LIBS : -lpthread -L ./CommandParser -lcli
-OBJS=gluethread/glthread.o graph.o topologies.o CommandParser/libcli.a net.o utils.o nwcli.o comm.o Layer2/layer2.o Layer3/layer3.o Layer2/l2switch.o
+OBJS=gluethread/glthread.o graph.o topologies.o CommandParser/libcli.a net.o utils.o nwcli.o comm.o Layer2/layer2.o Layer3/layer3.o Layer2/l2switch.o pkt_dump.o
 
 test.exe:testapp.o ${OBJS} 
 	${CC} ${CFLAGS} testapp.o ${OBJS} ${LIBS} -o test.exe 
@@ -32,6 +32,8 @@ Layer2/l2switch.o:Layer2/l2switch.c
 	${CC} ${CFLAGS} -c -I . Layer2/l2switch.c -o Layer2/l2switch.o
 Layer3/layer3.o:Layer3/layer3.c
 	${CC} ${CFLAGS} -c -I . Layer3/layer3.c -o Layer3/layer3.o
+pkt_dump.o:pkt_dump.c
+	${CC} ${CFLAGS} -c pkt_dump.c -o pkt_dump.o
 clean:
 	rm *.o
 	rm gluethread/glthread.o

@@ -258,39 +258,62 @@ dump_arp_table(arp_table_t *arp_table){
     }ITERATE_GLTHREAD_END(&arp_table->arp_entries, glthreadptr);
 }
 
+//TODO add vlan support
 void
 node_set_intf_l2_mode(node_t *node, char *intf_name,
     intf_l2_mode_t intf_l2_mode){  
     
     interface_t *interface = get_node_if_by_name(node, intf_name);
-    if(!interface){
-        return ;
-    }
-
-    if(IF_L2_MODE(interface) == intf_l2_mode){
-        return ;
-    }
-
-    switch(intf_l2_mode){
-        case ACCESS:
-            if(IS_INTF_L3_MODE(interface))
-                interface->intf_nw_props.is_ipadd_config = FALSE;
-
-            IF_L2_MODE(interface) = intf_l2_mode;
-            break;
-
-        case TRUNK:
-            if(IS_INTF_L3_MODE(interface))
-                interface->intf_nw_props.is_ipadd_config = FALSE;
-
-            IF_L2_MODE(interface) = intf_l2_mode;
-            break;
-
-        case L2_MODE_UNKNOWN:
-            IF_L2_MODE(interface) = intf_l2_mode;
-    }
+    assert(interface);
+    interface_set_l2_mode(node, interface, intf_l2_mode_str(intf_l2_mode));
 }
 
+void
+interface_set_l2_mode(node_t *node, 
+    interface_t *interface, char *l2_mode_option){
+        
+    intf_l2_mode_t intf_l2_mode;
+    if(strncmp(l2_mode_option, "trunk", strlen("trunk"))==0){
+        intf_l2_mode = TRUNK;
+    }
+    else if(strncmp(l2_mode_option, "access", strlen("access"))==0){
+        intf_l2_mode = ACCESS;
+    }
+    else{
+        assert(0);
+    }
+
+    if(IS_INTF_L3_MODE(interface)){
+        interface->intf_nw_props.is_ipadd_config = FALSE;
+        IF_L2_MODE(interface) = intf_l2_mode;
+        return;
+    }
+
+    if(IF_L2_MODE(interface)==L2_MODE_UNKNOWN){
+        IF_L2_MODE(interface) = intf_l2_mode;
+        return;
+    }
+
+    if(IF_L2_MODE(interface)==intf_l2_mode){
+        return;
+    }
+
+    if(intf_l2_mode==ACCESS && IF_L2_MODE(interface)==TRUNK){
+
+        IF_L2_MODE(interface) = intf_l2_mode;
+        for(unsigned int i = 0; i < MAX_VLAN_MEMBERSHIP; i++){
+            interface->intf_nw_props.vlans[i] = 0;
+        }   
+        return;
+    }
+
+    if(intf_l2_mode==TRUNK && IF_L2_MODE(interface)==ACCESS){
+
+        IF_L2_MODE(interface) = intf_l2_mode;
+        return ;
+    }
+    assert(0);
+}
 
 ethernet_hdr_t *
 tag_pkt_with_vlan_id(ethernet_hdr_t *ethernet_hdr, unsigned int total_pkt_size,
@@ -317,6 +340,7 @@ tag_pkt_with_vlan_id(ethernet_hdr_t *ethernet_hdr, unsigned int total_pkt_size,
     VLAN_ETH_FCS(vlan_ethernet_hdr_new, payload_size) = ETH_FCS(ethernet_hdr_old, payload_size);
     vlan_8021q_hdr_t *vlan_8021q_hdr_new = (vlan_8021q_hdr_t *)(vlan_ethernet_hdr_new->payload);
     vlan_8021q_hdr_new->tci_vid = vlan_id;
+    SET_COMMON_ETH_FCS((ethernet_hdr_t *)vlan_ethernet_hdr_new, payload_size, 0);
 
     *new_pkt_size = VLAN_ETH_HDR_SIZE_EXCL_PAYLOAD + payload_size;
     free(ethernet_hdr_old);
@@ -343,10 +367,24 @@ untag_pkt_with_vlan_id(ethernet_hdr_t *ethernet_hdr, unsigned int total_pkt_size
     strncpy(ethernet_hdr_new->src_mac.mac, vlan_ethernet_hdr_old->src_mac.mac, sizeof(mac_add_t));
     memcpy(ethernet_hdr_new->payload, vlan_ethernet_hdr_old->payload, payload_size);
     ethernet_hdr_new->type = vlan_ethernet_hdr_old->type;
-    ETH_FCS(ethernet_hdr_new, payload_size) = VLAN_ETH_FCS(vlan_ethernet_hdr_old, payload_size);
+    SET_COMMON_ETH_FCS(ethernet_hdr_new, payload_size, 0);
 
     *new_pkt_size = ETH_HDR_SIZE_EXCL_PAYLOAD + payload_size;
     free(vlan_ethernet_hdr_old);
     return ethernet_hdr_new;
-    
+}
+
+void
+node_set_intf_vlan_membership(node_t *node, char *intf_name, unsigned int vlan_id){
+
+    interface_t *interface = get_node_if_by_name(node, intf_name);
+    assert(interface);
+
+    interface_set_vlan(node, interface, vlan_id);
+
+}
+
+void
+interface_set_vlan(node_t *node, interface_t *interface, unsigned int vlan_id){
+    ;
 }

@@ -4,6 +4,8 @@
 #include "utils.h"
 #include <memory.h>
 
+#define MAX_VLAN_MEMBERSHIP 10
+
 /*Forward declarations*/
 typedef struct graph_ graph_t;
 typedef struct interface_ interface_t;
@@ -15,8 +17,8 @@ extern void init_arp_table(arp_table_t **arp_table);
 extern void init_mac_table(mac_table_t **mac_table);
 
 typedef enum {
-    ACCESS,
-    TRUNK,
+    ACCESS,/*Atmost 1 VLAN Membership*/
+    TRUNK, /*Atleast 1 VLAN Membership*/
     L2_MODE_UNKNOWN
 }intf_l2_mode_t;
 
@@ -55,6 +57,7 @@ intf_l2_mode_str(intf_l2_mode_t intf_l2_mode){
 
 static inline void
 init_node_nw_prop(node_nw_prop_t *node_nw_prop){
+
     node_nw_prop->flags = 0;
     node_nw_prop->is_lb_addr_config = FALSE;
     memset(node_nw_prop->lb_addr.ip_addr,0, 16);
@@ -73,15 +76,19 @@ typedef struct intf_nw_props_{
     char mask;
     intf_l2_mode_t intf_l2_mode; /*if IP Address is configured 
                                     then this is set to L2_MODE_UNKNOWN*/
+    unsigned int vlans[MAX_VLAN_MEMBERSHIP]; /*0 is the default value of 
+                                             each array element indicating no vlan*/
 }intf_nw_props_t;
 
 static inline void
 init_intf_nw_prop(intf_nw_props_t *intf_nw_props){
+
     memset(intf_nw_props->mac_add.mac, 0, sizeof(intf_nw_props->mac_add.mac));
     intf_nw_props->is_ipadd_config = FALSE;
     memset(intf_nw_props->ip_add.ip_addr,0,16);
     intf_nw_props->mask = 0;
     intf_nw_props->intf_l2_mode = L2_MODE_UNKNOWN;
+    memset(intf_nw_props->vlans, 0, sizeof(intf_nw_props->vlans));
 }
 
 void
@@ -125,5 +132,11 @@ pkt_buffer_shift_right(char *pkt, unsigned int pkt_size,
 
 interface_t *
 node_get_matching_subnet_interface(node_t *node, char *ip_addr);
+
+unsigned int 
+get_access_intf_operating_vlan_id(interface_t *interface);
+
+bool_t 
+is_trunk_interface_vlan_enabled(interface_t *interface, unsigned int vlan_id);
 
 #endif

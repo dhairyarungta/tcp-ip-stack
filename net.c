@@ -56,6 +56,7 @@ bool_t node_set_intf_ip_address(node_t *node, char *local_if, char *ip_addr, cha
     strncpy(IF_IP(interface),ip_addr,16);
     IF_IP(interface)[15]='\0';
     interface->intf_nw_props.mask = mask;
+    IF_L2_MODE(interface) = L2_MODE_UNKNOWN;
     return TRUE;
 }
 
@@ -89,28 +90,23 @@ void dump_node_nw_props(node_t *node){
 void dump_intf_props(interface_t *interface){
 
     dump_interface(interface);
-    char *mode = NULL;
-    if(IF_L2_MODE(interface) == ACCESS){
-        mode = "Access\0";
-    }
-    else if(IF_L2_MODE(interface) == TRUNK){
-        mode = "Trunk\0";
-    }
-    else if(IF_L2_MODE(interface) == L2_MODE_UNKNOWN){
-        mode = "L2 Mode Unknown\0";
-    }
-    else {
-        assert(0);
-    }
 
-    printf("\tIntf Mode : %s\n",mode);
     if(interface->intf_nw_props.is_ipadd_config == TRUE)
         printf("\tIntf IP Addr : %s, Mask : %u\n",IF_IP(interface), interface->intf_nw_props.mask);
     else
         printf("\tIntf IP Addr : %s\n","Nil");
 
-    printf("\tMAC Address : %u:%u:%u:%u:%u:%u\n\n",IF_MAC(interface)[0],IF_MAC(interface)[1],IF_MAC(interface)[2],
+    printf("\tMAC Address : %u:%u:%u:%u:%u:%u\n",IF_MAC(interface)[0],IF_MAC(interface)[1],IF_MAC(interface)[2],
     IF_MAC(interface)[3],IF_MAC(interface)[4],IF_MAC(interface)[5]);
+
+    printf("\tIntf Mode : %s, VLAN Membership : ",intf_l2_mode_str(interface->intf_nw_props.intf_l2_mode));
+
+    for(unsigned int i = 0; i<MAX_VLAN_MEMBERSHIP; i++){
+        if(interface->intf_nw_props.vlans[i]!=0) {
+            printf("%u ",interface->intf_nw_props.vlans[i]);
+        }
+    }
+    printf("\n");
 }
 
 /*does NOT manage byte ordering,
@@ -230,4 +226,14 @@ node_get_matching_subnet_interface(node_t *node, char *ip_addr){
         }
     }
     return NULL;
+}
+
+unsigned int 
+get_access_intf_operating_vlan_id(interface_t *interface){
+
+}
+
+bool_t 
+is_trunk_interface_vlan_enabled(interface_t *interface, unsigned int vlan_id){
+
 }
