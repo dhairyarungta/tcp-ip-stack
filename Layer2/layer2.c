@@ -130,9 +130,9 @@ layer2_frame_recv(node_t *node, interface_t *interface,
     char *pkt, unsigned int pkt_size){
 
     /*Entry point into the TCP/IP stack after the physical layer*/
-
+    unsigned int vlan_id_to_tag = 0;
     ethernet_hdr_t *ethernet_hdr = (ethernet_hdr_t *)pkt;
-    if(l2_frame_recv_qualify_on_interface(interface, ethernet_hdr) == FALSE){
+    if(l2_frame_recv_qualify_on_interface(interface, ethernet_hdr, &vlan_id_to_tag) == FALSE){
         printf("L2 Frame Rejected\n");
         return;
     }
@@ -164,9 +164,17 @@ layer2_frame_recv(node_t *node, interface_t *interface,
         }
     }
     else if(IF_L2_MODE(interface)==TRUNK || IF_L2_MODE(interface)==ACCESS){
-        l2_switch_recv_frame(interface, pkt, pkt_size);
+        unsigned int new_pkt_size = 0;
+        if(vlan_id_to_tag != 0){
+            pkt = (char *)tag_pkt_with_vlan_id((ethernet_hdr_t *)pkt, 
+                pkt_size, vlan_id_to_tag, &new_pkt_size);
+            assert(new_pkt_size != pkt_size);
+        }
+
+        l2_switch_recv_frame(interface, pkt, vlan_id_to_tag ? new_pkt_size : pkt_size);
     }
     else{
+        /*Do nothing, drop packet*/
         return;
     }
 }
@@ -338,8 +346,12 @@ tag_pkt_with_vlan_id(ethernet_hdr_t *ethernet_hdr, unsigned int total_pkt_size,
     memcpy(vlan_ethernet_hdr_new->payload, ethernet_hdr_old->payload, payload_size);
     vlan_ethernet_hdr_new->type = ethernet_hdr_old->type;
     VLAN_ETH_FCS(vlan_ethernet_hdr_new, payload_size) = ETH_FCS(ethernet_hdr_old, payload_size);
+
     vlan_8021q_hdr_t *vlan_8021q_hdr_new = (vlan_8021q_hdr_t *)(vlan_ethernet_hdr_new->payload);
-    vlan_8021q_hdr_new->tci_vid = vlan_id;
+    vlan_8021q_hdr_new->tpid = VLAN_8021Q_PROTO;
+    vlan_8021q_hdr_new->tci_pcp = 0;
+    vlan_8021q_hdr_new->tci_dei = 0;
+    vlan_8021q_hdr_new->tci_vid = (short)vlan_id;
     SET_COMMON_ETH_FCS((ethernet_hdr_t *)vlan_ethernet_hdr_new, payload_size, 0);
 
     *new_pkt_size = VLAN_ETH_HDR_SIZE_EXCL_PAYLOAD + payload_size;
@@ -386,5 +398,8 @@ node_set_intf_vlan_membership(node_t *node, char *intf_name, unsigned int vlan_i
 
 void
 interface_set_vlan(node_t *node, interface_t *interface, unsigned int vlan_id){
-    ;
+    
+    if(IS_INTF_L3_MODE(interface)){
+        assert(0);
+    }
 }

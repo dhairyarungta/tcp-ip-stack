@@ -216,11 +216,11 @@ send_pkt_flood_l2_intf_only(node_t *node, interface_t *exempted_intf,
 
         if(interface == exempted_intf)
             continue;
+        
         else if(!IS_INTF_L3_MODE(interface) && IF_L2_MODE(interface)!=L2_MODE_UNKNOWN){
             send_pkt_out(pkt, pkt_size, interface);
         }
     }
 
     return 0;
-
 }

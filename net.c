@@ -231,9 +231,18 @@ node_get_matching_subnet_interface(node_t *node, char *ip_addr){
 unsigned int 
 get_access_intf_operating_vlan_id(interface_t *interface){
 
+    assert(IF_L2_MODE(interface)==ACCESS);
+    return (interface->intf_nw_props.vlans[0]);
 }
 
 bool_t 
 is_trunk_interface_vlan_enabled(interface_t *interface, unsigned int vlan_id){
 
+    assert(IF_L2_MODE(interface)==TRUNK);
+    for(unsigned int i = 0; i < MAX_VLAN_MEMBERSHIP; i++){
+        if(interface->intf_nw_props.vlans[i]==vlan_id){
+            return TRUE;
+        }
+    }
+    return FALSE;
 }

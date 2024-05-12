@@ -86,18 +86,49 @@ l2_switch_perform_mac_learning(node_t *node, char *src_mac, char *intf_name){
     }
 }
 
+static bool_t
+l2_switch_send_pkt_out(char *pkt , unsigned int pkt_size,
+    interface_t *oif){
+    
+    if(IS_INTF_L3_MODE(oif)){
+        assert(0);
+    }
+
+    intf_l2_mode_t intf_l2_mode = IF_L2_MODE(oif);
+    if(intf_l2_mode == L2_MODE_UNKNOWN){
+        return FALSE;
+    }
+
+    ethernet_hdr_t *ethernet_hdr = (ethernet_hdr_t *)pkt;
+    vlan_8021q_hdr_t *vlan_8021q_hdr = is_pkt_vlan_tagged(ethernet_hdr);
+
+    switch(intf_l2_mode){
+        case ACCESS:
+
+        case TRUNK:
+
+
+    }
+
+}
+
+l2_switch_flood_pkt_out(node_t * node, interface_t *expempted_intf,
+    char *pkt, unsigned int pkt_size){
+
+}
+
 static void
 l2_switch_forward_frame(node_t *node, interface_t *recv_intf, char *pkt, unsigned int pkt_size){
 
     ethernet_hdr_t *ethernet_hdr = (ethernet_hdr_t *)pkt;
     if(IS_MAC_BROADCAST_ADDR(ethernet_hdr->dst_mac.mac)){
-        send_pkt_flood_l2_intf_only(node, recv_intf, pkt, pkt_size);
+        l2_switch_flood_pkt_out(node, recv_intf, (char *)ethernet_hdr, pkt_size);
         return;
     }
 
     mac_table_entry_t *mac_table_entry = mac_table_lookup(NODE_MAC_TABLE(node), ethernet_hdr->dst_mac.mac);
     if(!mac_table_entry){
-        send_pkt_flood_l2_intf_only(node, recv_intf, pkt, pkt_size);
+        l2_switch_flood_pkt_out(node, recv_intf, (char *)ethernet_hdr, pkt_size);
         return;
     }
 
@@ -108,7 +139,7 @@ l2_switch_forward_frame(node_t *node, interface_t *recv_intf, char *pkt, unsigne
         return;
     }
 
-    send_pkt_out(pkt, pkt_size, oif);
+    l2_switch_send_pkt_out((char *)ethernet_hdr, pkt_size, oif);
 }
 
 void

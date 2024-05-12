@@ -52,3 +52,9 @@ main(int argc, char** argv){
     //send_pkt_out(msg, strlen(msg),oif);
     //start_shell();
 }
+
+/*TODO 
+    improve vlan tag, untag funcs
+    add vlan func to l2_recv_qualify function
+    complete interface_set_vlan func
+*/

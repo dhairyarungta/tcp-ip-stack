@@ -208,15 +208,12 @@ layer2_frame_recv(node_t *node, interface_t *interface,
 
 static inline bool_t
 l2_frame_recv_qualify_on_interface(interface_t *interface, 
-    ethernet_hdr_t *ethernet_hdr){
+    ethernet_hdr_t *ethernet_hdr, unsigned int *output_vlan_id){
 
     /* Copied comment from reference, for better understanding of readers
-    Presence of IP address on interface makes it work in L3 mode,
+     * Presence of IP address on interface makes it work in L3 mode,
      * while absence of IP-address automatically make it work in
-     * L2 mode. For interfaces working in L2 mode (L2 switch interfaces),
-     * We should accept all frames. L2 switch never discards the frames
-     * based on MAC addresses*/
-
+     * L2 mode provided that it is operational either in ACCESS mode or TRUNK mode.*/
     if(!IS_INTF_L3_MODE(interface) && 
         IF_L2_MODE(interface)==L2_MODE_UNKNOWN ){
         return FALSE;
