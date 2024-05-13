@@ -62,22 +62,6 @@ typedef struct arp_table_{
 
 GLTHREAD_TO_STRUCT(arp_glue_to_arp, arp_entry_t, arp_glue);
 
-static inline bool_t 
-l2_frame_recv_qualify_interface(interface_t *interface,ethernet_hdr_t *ethernet_hdr){
-    if(! IS_INTF_L3_MODE(interface)){
-        return FALSE;
-    }
-    else if(memcmp(ethernet_hdr->dst_mac.mac,IF_MAC(interface),sizeof(mac_add_t))==0)        
-    {
-        return TRUE;
-    }
-    else if(IS_MAC_BROADCAST_ADDR(ethernet_hdr->dst_mac.mac)){
-        return TRUE;
-    }
-
-    return FALSE;
-    
-}
 
 //#define ETH_HDR_SIZE_EXCL_PAYLOAD1 (sizeof(ethernet_hdr_t)-248*sizeof(char))
 
@@ -210,29 +194,62 @@ static inline bool_t
 l2_frame_recv_qualify_on_interface(interface_t *interface, 
     ethernet_hdr_t *ethernet_hdr, unsigned int *output_vlan_id){
 
-    /* Copied comment from reference, for better understanding of readers
-     * Presence of IP address on interface makes it work in L3 mode,
-     * while absence of IP-address automatically make it work in
-     * L2 mode provided that it is operational either in ACCESS mode or TRUNK mode.*/
-    if(!IS_INTF_L3_MODE(interface) && 
-        IF_L2_MODE(interface)==L2_MODE_UNKNOWN ){
+
+    *output_vlan_id = 0;
+
+    vlan_8021q_hdr_t *vlan_8021q_hdr = is_pkt_vlan_tagged(ethernet_hdr);
+
+    if(IS_INTF_L3_MODE(interface)){
+        if(vlan_8021q_hdr){
+            return FALSE;
+        }
+
+        if(IS_MAC_BROADCAST_ADDR(ethernet_hdr->dst_mac.mac) ||
+            (strncmp(IF_MAC(interface), ethernet_hdr->dst_mac.mac, sizeof(mac_add_t))==0)){
+                return TRUE;
+        }    
+        else {
+            return FALSE;
+        }
+    } 
+
+    intf_l2_mode_t intf_l2_mode = IF_L2_MODE(interface);
+    
+    switch (intf_l2_mode) {
+    
+        case ACCESS:
+        {
+            unsigned int intf_vlan_id = get_access_intf_operating_vlan_id(interface);
+
+            if(vlan_8021q_hdr==NULL && intf_vlan_id!=0){
+                *output_vlan_id = intf_vlan_id;
+                return TRUE;
+            }
+            else {
+                return FALSE;
+            }
+        }
+
+        case TRUNK:
+        {
+            if(vlan_8021q_hdr == NULL){
+                return FALSE;
+            }
+            else {
+                if(is_trunk_interface_vlan_enabled(interface, GET_802_1Q_VLAN_ID(vlan_8021q_hdr))){
+                    return TRUE;
+                }
+                else {
+                    return FALSE;
+                }
+            }
+        }
+
+        default:
+            ;
+
         return FALSE;
-    }
-
-    if(!IS_INTF_L3_MODE(interface) &&
-        (IF_L2_MODE(interface)==ACCESS || IF_L2_MODE(interface)==TRUNK)){
-        return TRUE;
-    }
-
-    if(IS_INTF_L3_MODE(interface) && memcmp(IF_MAC(interface),ethernet_hdr->dst_mac.mac,sizeof(mac_add_t)) == 0){
-        return TRUE;
-    }
-
-    if(IS_INTF_L3_MODE(interface) && IS_MAC_BROADCAST_ADDR(ethernet_hdr->dst_mac.mac)){
-        return TRUE;
-    }
-
-    return FALSE;
+    } 
 }
 
 static inline char *
@@ -271,6 +288,5 @@ interface_set_vlan(node_t *node, interface_t *interface, unsigned int vlan_id);
 
 void
 interface_set_l2_mode(node_t *node, interface_t *interface, char *l2_mode_option);
-
 
 #endif

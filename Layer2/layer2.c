@@ -400,6 +400,46 @@ void
 interface_set_vlan(node_t *node, interface_t *interface, unsigned int vlan_id){
     
     if(IS_INTF_L3_MODE(interface)){
-        assert(0);
+        printf("Error : Interface : %s : L3 mode enabled, Node : %s\n", 
+            interface->if_name, node->node_name);
+        return ;
+    }
+
+    if(IF_L2_MODE(interface)!=ACCESS && IF_L2_MODE(interface)!=TRUNK){
+        printf("Error : Interface : %s L2 mode not enabled\n",interface->if_name);
+        return;
+    }
+
+    if(IF_L2_MODE(interface) == ACCESS){
+
+        for (unsigned int i = 0; i < MAX_VLAN_MEMBERSHIP; i++){
+            if(interface->intf_nw_props.vlans[i] != 0){
+                interface->intf_nw_props.vlans[i] = vlan_id;
+                return;
+            }
+        }
+        interface->intf_nw_props.vlans[0]=vlan_id;
+    }
+
+    if(IF_L2_MODE(interface) == TRUNK){
+
+        unsigned int *vlan = NULL; 
+        for(unsigned int i = 0; i < MAX_VLAN_MEMBERSHIP; i++){
+            if(!vlan && interface->intf_nw_props.vlans[i] == 0){
+                vlan = &interface->intf_nw_props.vlans[i];
+            }
+            else if(interface->intf_nw_props.vlans[i] == vlan_id){
+                return ;
+            }
+        }
+
+        if(vlan){
+            *vlan = vlan_id;
+            return ;
+        }
+
+        if(vlan_id!=0){
+            printf("Error : Interface %s : Max Vlan membership limit reached\n", interface->if_name);
+        }
     }
 }

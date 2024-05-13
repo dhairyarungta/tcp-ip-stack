@@ -104,17 +104,79 @@ l2_switch_send_pkt_out(char *pkt , unsigned int pkt_size,
 
     switch(intf_l2_mode){
         case ACCESS:
+        {
+            unsigned int intf_vland_id = get_access_intf_operating_vlan_id(oif);
+            if(vlan_8021q_hdr==NULL && intf_vland_id==0){
+                assert(0); /*A Non Configured Access VLAN shouldn't be allowed to send 
+                            to any MAC of its choice*/
+            }
+
+            if(vlan_8021q_hdr==NULL && intf_vland_id!=0){
+                return FALSE;
+            }
+
+            if(vlan_8021q_hdr!=NULL && intf_vland_id!=0){
+                if(vlan_8021q_hdr->tci_vid==intf_vland_id){
+                    send_pkt_out(pkt, pkt_size, oif);
+                    return TRUE;
+                }
+                else {
+                    return FALSE;
+                }
+            }
+
+            if(vlan_8021q_hdr!=NULL && intf_vland_id==0){
+                return FALSE;
+            }
+
+            return FALSE;
+        }
 
         case TRUNK:
+        {
+            unsigned pkt_vlan_id = 0;
+            if(vlan_8021q_hdr!=NULL){
+                pkt_vlan_id = GET_802_1Q_VLAN_ID(vlan_8021q_hdr);
+            }
 
+            if(pkt_vlan_id && is_trunk_interface_vlan_enabled(oif, pkt_vlan_id)){
+                send_pkt_out(pkt, pkt_size, oif);
+                return TRUE;
+            }
 
+            return FALSE;
+        }
+
+        default:
+            return FALSE;
     }
-
 }
 
+static bool_t
 l2_switch_flood_pkt_out(node_t * node, interface_t *expempted_intf,
     char *pkt, unsigned int pkt_size){
 
+    interface_t *oif = NULL;
+
+    char *pkt_copy = NULL;
+    char *temp_pkt = (char *) calloc(1, MAX_PACKET_BUFFER_SIZE);
+    pkt_copy = temp_pkt+MAX_PACKET_BUFFER_SIZE-pkt_size;
+    
+    for(unsigned int i = 0; i < MAX_INTF_PER_NODE; i++){
+        oif = node->intf[i];
+        if(!oif){
+            break;
+        }
+
+        if(IS_INTF_L3_MODE(oif) || oif==expempted_intf){
+            continue;
+        }
+
+        memcpy(pkt_copy, pkt, pkt_size);
+        l2_switch_send_pkt_out(pkt_copy, pkt_size, oif);
+    }
+    free(temp_pkt);
+    return TRUE;
 }
 
 static void

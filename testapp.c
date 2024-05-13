@@ -11,6 +11,7 @@
 extern graph_t * build_first_topo();
 extern graph_t * build_simple_l2_switch_topo();
 extern graph_t * build_dualswitch_topo();
+extern graph_t * L2_loop_topo();
 extern void nw_init_cli();
 
 graph_t *topo = NULL;
@@ -55,6 +56,5 @@ main(int argc, char** argv){
 
 /*TODO 
     improve vlan tag, untag funcs
-    add vlan func to l2_recv_qualify function
     complete interface_set_vlan func
 */

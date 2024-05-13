@@ -103,7 +103,7 @@ interface_assign_mac_address(interface_t *interface);
 #define IS_INTF_L3_MODE(intf_ptr)((intf_ptr->intf_nw_props.is_ipadd_config==TRUE)&&(IF_IP(intf_ptr)!=NULL))
 #define NODE_ARP_TABLE(node) (node->node_nw_prop.arp_table)
 #define NODE_MAC_TABLE(node) (node->node_nw_prop.mac_table)
-#define IF_L2_MODE(intf_ptr) (interface->intf_nw_props.intf_l2_mode)
+#define IF_L2_MODE(intf_ptr) (intf_ptr->intf_nw_props.intf_l2_mode)
 
 
 bool_t node_set_loopback_address(node_t *node, char *ip_addr);
