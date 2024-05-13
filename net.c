@@ -84,7 +84,7 @@ void dump_node_nw_props(node_t *node){
 
     printf("\nNode name : %s\n",node->node_name);
     if(node->node_nw_prop.is_lb_addr_config==TRUE)
-        printf("Loopback IP Addr : %s\n\n",NODE_LO_ADDR(node));
+        printf("Loopback IP Addr : %s\n",NODE_LO_ADDR(node));
 
 }
 void dump_intf_props(interface_t *interface){
@@ -99,14 +99,15 @@ void dump_intf_props(interface_t *interface){
     printf("\tMAC Address : %u:%u:%u:%u:%u:%u\n",IF_MAC(interface)[0],IF_MAC(interface)[1],IF_MAC(interface)[2],
     IF_MAC(interface)[3],IF_MAC(interface)[4],IF_MAC(interface)[5]);
 
-    printf("\tIntf Mode : %s, VLAN Membership : ",intf_l2_mode_str(interface->intf_nw_props.intf_l2_mode));
+    printf("\tIntf Mode : %s, VLAN Membership : ",
+    intf_l2_mode_str(interface->intf_nw_props.intf_l2_mode));
 
     for(unsigned int i = 0; i<MAX_VLAN_MEMBERSHIP; i++){
         if(interface->intf_nw_props.vlans[i]!=0) {
             printf("%u ",interface->intf_nw_props.vlans[i]);
         }
     }
-    printf("\n");
+    printf("\n\n");
 }
 
 /*does NOT manage byte ordering,

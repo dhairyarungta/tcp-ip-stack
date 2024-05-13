@@ -56,5 +56,4 @@ main(int argc, char** argv){
 
 /*TODO 
     improve vlan tag, untag funcs
-    complete interface_set_vlan func
 */

@@ -266,7 +266,6 @@ dump_arp_table(arp_table_t *arp_table){
     }ITERATE_GLTHREAD_END(&arp_table->arp_entries, glthreadptr);
 }
 
-//TODO add vlan support
 void
 node_set_intf_l2_mode(node_t *node, char *intf_name,
     intf_l2_mode_t intf_l2_mode){  
@@ -419,6 +418,7 @@ interface_set_vlan(node_t *node, interface_t *interface, unsigned int vlan_id){
             }
         }
         interface->intf_nw_props.vlans[0]=vlan_id;
+        return ;
     }
 
     if(IF_L2_MODE(interface) == TRUNK){
