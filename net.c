@@ -93,18 +93,22 @@ void dump_intf_props(interface_t *interface){
 
     if(interface->intf_nw_props.is_ipadd_config == TRUE)
         printf("\tIntf IP Addr : %s, Mask : %u\n",IF_IP(interface), interface->intf_nw_props.mask);
-    else
-        printf("\tIntf IP Addr : %s\n","Nil");
+    //else
+        //printf("\tIntf IP Addr : %s\n","Nil");
 
-    printf("\tMAC Address : %u:%u:%u:%u:%u:%u\n",IF_MAC(interface)[0],IF_MAC(interface)[1],IF_MAC(interface)[2],
-    IF_MAC(interface)[3],IF_MAC(interface)[4],IF_MAC(interface)[5]);
+    if(IF_L2_MODE(interface) == L2_MODE_UNKNOWN){
+        printf("\tMAC Address : %u:%u:%u:%u:%u:%u",IF_MAC(interface)[0],IF_MAC(interface)[1],IF_MAC(interface)[2],
+        IF_MAC(interface)[3],IF_MAC(interface)[4],IF_MAC(interface)[5]);
+    }
 
-    printf("\tIntf Mode : %s, VLAN Membership : ",
-    intf_l2_mode_str(interface->intf_nw_props.intf_l2_mode));
+    if(interface->intf_nw_props.is_ipadd_config!=TRUE){
+        printf("\tIntf Mode : %s, VLAN Membership : ",
+        intf_l2_mode_str(interface->intf_nw_props.intf_l2_mode));
 
-    for(unsigned int i = 0; i<MAX_VLAN_MEMBERSHIP; i++){
-        if(interface->intf_nw_props.vlans[i]!=0) {
-            printf("%u ",interface->intf_nw_props.vlans[i]);
+        for(unsigned int i = 0; i<MAX_VLAN_MEMBERSHIP; i++){
+            if(interface->intf_nw_props.vlans[i]!=0) {
+                printf("%u ",interface->intf_nw_props.vlans[i]);
+            }
         }
     }
     printf("\n\n");

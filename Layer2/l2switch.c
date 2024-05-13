@@ -117,7 +117,9 @@ l2_switch_send_pkt_out(char *pkt , unsigned int pkt_size,
 
             if(vlan_8021q_hdr!=NULL && intf_vland_id!=0){
                 if(vlan_8021q_hdr->tci_vid==intf_vland_id){
-                    send_pkt_out(pkt, pkt_size, oif);
+                    unsigned int new_pkt_size = 0;
+                    ethernet_hdr = untag_pkt_with_vlan_id(ethernet_hdr, pkt_size, &new_pkt_size);
+                    send_pkt_out((char *)ethernet_hdr, new_pkt_size, oif);
                     return TRUE;
                 }
                 else {

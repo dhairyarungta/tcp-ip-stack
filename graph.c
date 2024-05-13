@@ -7,7 +7,7 @@
 void
 insert_link_between_two_nodes(node_t *node1,
     node_t *node2, char* from_if_name, char *to_if_name, unsigned int cost){
-        
+
         link_t* link = calloc(1,sizeof(link_t));
         
         strncpy(link->intf1.if_name, from_if_name,IF_NAME_SIZE);
@@ -89,6 +89,6 @@ dump_interface(interface_t *interface){
     node_t *nbr_node = get_nbr_node(interface);
     link_t *link = interface->link; 
 
-    printf("\tInterface Name:  %s\n\tLocal Node: %s,  Nbr Node: %s, Cost = %u\n",
+    printf("\tInterface Name :  %s\n\tLocal Node : %s,  Nbr Node : %s, Cost = %u\n",
         interface->if_name, att_node->node_name, nbr_node->node_name,link->cost );
 }

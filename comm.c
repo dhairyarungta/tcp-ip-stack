@@ -10,10 +10,13 @@
 #include "graph.h"
 #include "comm.h"
 #include "net.h"
-
+#include "Layer2/layer2.h"
 static char send_buffer[MAX_PACKET_BUFFER_SIZE];
 static char recv_buffer[MAX_PACKET_BUFFER_SIZE];
 static unsigned int udp_port_number = 40000;
+
+
+extern void pkt_dump(ethernet_hdr_t *, unsigned int);
 
 extern void layer2_frame_recv(node_t *node, interface_t *interface,
     char *pkt, unsigned int pkt_size);
@@ -149,7 +152,12 @@ network_start_pkt_receiver_thread(graph_t *topo){
 
 int
 send_pkt_out(char *pkt, unsigned int pkt_size, interface_t *interface){
+
     int rc = 0;
+    printf("Inside send_pkt_out\n");
+    printf("intf name : %s\n",interface->if_name);
+    pkt_dump((ethernet_hdr_t *)pkt, pkt_size);
+    printf("\n");
     node_t *sending_node = interface->att_node;
     node_t *nbr_node = get_nbr_node(interface);
     if(!nbr_node)
@@ -181,7 +189,6 @@ send_pkt_out(char *pkt, unsigned int pkt_size, interface_t *interface){
     //printf("rc : %d \n",rc);
     close(sock);
     return rc; 
-
 }
 
 int

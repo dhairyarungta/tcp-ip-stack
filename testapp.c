@@ -54,6 +54,4 @@ main(int argc, char** argv){
     //start_shell();
 }
 
-/*TODO 
-    improve vlan tag, untag funcs
-*/
+/*TODO*/

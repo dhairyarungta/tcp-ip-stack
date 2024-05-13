@@ -3,7 +3,7 @@
 #include "tcpconst.h"
 
 static void
-print_mac_address(char *mac){
+print_mac_address(unsigned char *mac){
 
     printf("MAC : %u:%u:%u:%u:%u:%u\n", 
         mac[0], mac[1],mac[2],mac[3],mac[4],mac[5]);
@@ -13,7 +13,7 @@ static void
 print_arp_hdr(char *payload){
 
     arp_hdr_t *arp_hdr = (arp_hdr_t *)payload;
-    printf("Hw Type : %hd, Proto Type : %hd, Op Code : %hd\n",
+    printf("ARP -> Hw Type : %hd, Proto Type : %hd, Op Code : %hd\n",
         arp_hdr->hw_type, arp_hdr->proto_type, arp_hdr->op_code);
 
     printf("Arp Src "); print_mac_address(arp_hdr->src_mac.mac);
