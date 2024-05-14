@@ -127,6 +127,34 @@ process_arp_reply_msg(node_t *node, interface_t *iif,
 
 }
 
+static void
+promote_pkt_to_layer2(node_t *node, interface_t *iif, ethernet_hdr_t *ethernet_hdr,
+    unsigned int pkt_size){
+        switch(ethernet_hdr->type){
+            case ARP_MSG :
+            {
+                arp_hdr_t *arp_hdr = (arp_hdr_t *)(ethernet_hdr->payload);
+                switch (arp_hdr->op_code) {
+                    case ARP_BROAD_REQ :
+                        process_arp_broadcast_request(node, iif, ethernet_hdr); 
+                        break;
+                    
+                    case ARP_REPLY : 
+                        process_arp_reply_msg(node, iif, ethernet_hdr);
+                        break;
+                    
+                    default:
+                        break;
+                }
+                break;
+            }
+            default:
+                ;
+                promote_pkt_to_layer3(node, iif, GET_ETHERNET_HDR_PAYLOAD(ethernet_hdr), pkt_size);
+                break;
+        }
+}
+
 void 
 layer2_frame_recv(node_t *node, interface_t *interface, 
     char *pkt, unsigned int pkt_size){
@@ -146,28 +174,7 @@ layer2_frame_recv(node_t *node, interface_t *interface,
 
     printf("L2 Frame Accepted1\n");
     if(IS_INTF_L3_MODE(interface)){ 
-        switch(ethernet_hdr->type){
-            case ARP_MSG :
-            {
-                arp_hdr_t *arp_hdr = (arp_hdr_t *)(ethernet_hdr->payload);
-                switch (arp_hdr->op_code) {
-                    case ARP_BROAD_REQ :
-                        process_arp_broadcast_request(node, interface, ethernet_hdr); 
-                        break;
-                    
-                    case ARP_REPLY : 
-                        process_arp_reply_msg(node, interface, ethernet_hdr);
-                        break;
-                    
-                    default:
-                        break;
-                }
-                break;
-            }
-            default:
-                promote_pkt_to_layer3(node, interface, pkt, pkt_size);
-                break;
-        }
+        promote_pkt_to_layer2()
     }
     else if(IF_L2_MODE(interface)==TRUNK || IF_L2_MODE(interface)==ACCESS){
         unsigned int new_pkt_size = 0;

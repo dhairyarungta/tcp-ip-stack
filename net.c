@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 
+extern void rt_table_add_direct_route(rt_table_t *rt_table, char *dst, char mask);
+
 static unsigned int
 hash_code(void *ptr, unsigned int size){
 
@@ -43,6 +45,7 @@ bool_t node_set_loopback_address(node_t *node, char *ip_addr){
     node->node_nw_prop.is_lb_addr_config = TRUE;
     strncpy(NODE_LO_ADDR(node),ip_addr,16);
     NODE_LO_ADDR(node)[15]='\0';
+    rt_table_add_direct_route(NODE_RT_TABLE(node), ip_addr, 32);
     return TRUE;
 }
 
@@ -57,6 +60,7 @@ bool_t node_set_intf_ip_address(node_t *node, char *local_if, char *ip_addr, cha
     IF_IP(interface)[15]='\0';
     interface->intf_nw_props.mask = mask;
     IF_L2_MODE(interface) = L2_MODE_UNKNOWN;
+    rt_table_add_direct_route(NODE_RT_TABLE(node), ip_addr, mask);
     return TRUE;
 }
 
