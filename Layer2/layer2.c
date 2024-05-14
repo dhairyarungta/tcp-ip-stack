@@ -108,7 +108,7 @@ process_arp_broadcast_request(node_t *node, interface_t *iif,
     ip_addr[15] = '\0';
 
     if(strncmp(IF_IP(iif), ip_addr, 16)!=0){
-        printf("%s : ARP Broadcast req msg dropped , Dst IP Address : %s did not match with interface ip : %s\n",
+        printf("%s : ARP Broadcast req msg dropped , Dst IP Address : %s did not match with Intf IP : %s\n",
             node->node_name, ip_addr, IF_IP(iif));
         return;
     }
@@ -136,7 +136,7 @@ layer2_frame_recv(node_t *node, interface_t *interface,
     ethernet_hdr_t *ethernet_hdr = (ethernet_hdr_t *)pkt;
     printf("inside layer2_frame_recv\n");
     printf("intf name : %s\n",interface->if_name);
-    pkt_dump(ethernet_hdr,pkt_size);
+    //pkt_dump(ethernet_hdr,pkt_size);
     printf("\n");
     if(l2_frame_recv_qualify_on_interface(interface, ethernet_hdr, &vlan_id_to_tag) == FALSE){
         printf("L2 Frame Rejected1\n");
@@ -176,7 +176,8 @@ layer2_frame_recv(node_t *node, interface_t *interface,
                 pkt_size, vlan_id_to_tag, &new_pkt_size);
             assert(new_pkt_size != pkt_size);
         }
-        pkt_dump((ethernet_hdr_t *)pkt,new_pkt_size);
+        printf("here in l2_frame_recv\n");
+        //pkt_dump((ethernet_hdr_t *)pkt,new_pkt_size);
 
         l2_switch_recv_frame(interface, pkt, vlan_id_to_tag ? new_pkt_size : pkt_size);
     }

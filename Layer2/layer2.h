@@ -237,7 +237,6 @@ l2_frame_recv_qualify_on_interface(interface_t *interface,
             }
             else {
                 if(is_trunk_interface_vlan_enabled(interface, GET_802_1Q_VLAN_ID(vlan_8021q_hdr))){
-                    *output_vlan_id = GET_802_1Q_VLAN_ID(vlan_8021q_hdr);
                     return TRUE;
                 }
                 else {
