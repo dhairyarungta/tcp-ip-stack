@@ -5,6 +5,48 @@
 #include "../graph.h"
 #include "../gluethread/glthread.h"
 
+#pragma pack(push,1)
+/*IPV4 header format as per standard specification*/
+typedef struct ip_hdr_ {
+    unsigned int version : 4; /*version number, 4 for IPV4*/
+    unsigned ihl : 4;
+    char tos; 
+    unsigned short total_length;
+
+    short identification;
+    unsigned int unused_flag : 1;
+    unsigned int DF_flag : 1;
+    unsigned int MORE_flag : 1;
+    unsigned int frag_offset :1;
+
+    char ttl;
+    char protocol;
+    unsigned short checksum;
+    unsigned int src_ip;
+    unsigned int dst_ip;
+}ip_hdr_t;
+#pragma pack(pop)
+
+static inline void
+initialize_ip_hdr(ip_hdr_t *ip_hdr){
+    ip_hdr->version = 4;
+    ip_hdr->ihl = 5;
+    ip_hdr->tos = 0;
+    ip_hdr->total_length = 0;
+
+    ip_hdr->identification = 0;
+    ip_hdr->unused_flag = 0;
+    ip_hdr->DF_flag = 1;
+    ip_hdr->MORE_flag = 0;
+    ip_hdr->frag_offset = 0;
+
+    ip_hdr->ttl = 64;
+    ip_hdr->protocol = 0;
+    ip_hdr->checksum = 0;
+    ip_hdr->src_ip = 0;
+    ip_hdr->dst_ip = 0;
+}
+
 typedef struct rt_table_ {
     glthread_t route_list;
 }rt_table_t;
@@ -20,6 +62,11 @@ typedef struct l3_route_ {
 }l3_route_t ;
 
 GLTHREAD_TO_STRUCT(rt_glue_to_l3_route, l3_route_t, rt_glue);
+
+#define IP_HDR_LEN_IN_BYTES(ip_hdr_ptr) (4*ip_hdr_ptr->ihl)
+#define IP_HDR_TOTAL_LEN_IN_BYTES(ip_hdr_ptr) (4*ip_hdr_ptr->total_length)
+#define INCREMENT_IPHDR(ip_hdr_ptr) (((char *)ip_hdr_ptr)+(4*ip_hdr_ptr->ihl))
+#define IP_HDR_PAYLAOD_SIZE(ip_hdr_ptr) (4*((ip_hdr_ptr->total_length)-(ip_hdr_ptr->ihl)))
 
 void 
 init_rt_table(rt_table_t **rt_table);
