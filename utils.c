@@ -2,6 +2,7 @@
 #include <string.h>
 #include <arpa/inet.h> 
 
+/*Returns mask applied to prefix, in the array pointed by str_prefix*/
 void
 apply_mask(char *prefix, char mask, char *str_prefix){
 

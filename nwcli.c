@@ -21,6 +21,22 @@ validate_node_name (char *value){
         return VALIDATION_FAILED;
 }
 
+static int 
+validate_mask_value(char *mask_str){
+
+    unsigned int mask = atoi(mask_str);
+    if(!mask){
+        printf("Error : Invalid Mask Value\n");
+        return VALIDATION_FAILED;
+    }
+
+    if(mask>=0 && mask<=32){
+        return VALIDATION_SUCCESS;
+    }
+
+    return VALIDATION_FAILED;
+}
+
 static int
 show_arp_handler(param_t *param, ser_buff_t *tlv_buf, 
     op_mode enable_or_disable){
@@ -116,6 +132,13 @@ show_rt_handler(param_t *param, ser_buff_t *tlv_buf,
     return 0;
 }
 
+static int
+l3_config_handler(param_t *param, ser_buff_t *tlv_buf, 
+    op_mode enable_or_disable){
+
+    char *node_name = NULL;
+}
+
 void
 nw_init_cli(){
     init_libcli();
@@ -169,13 +192,13 @@ nw_init_cli(){
     {
         /*run node*/
         static param_t node;
-        init_param(&node, CMD, "node",0,0,INVALID,0,"Run Instructions on a Node");
+        init_param(&node, CMD, "node",0,0,INVALID,0,"\"node\" keyword");
         libcli_register_param(run,&node);
 
         {
             /*run node <node-name>*/
             static param_t node_name;
-            init_param(&node_name, LEAF,0, 0, validate_node_name,STRING, "node-name","Node Name Present in Topology");
+            init_param(&node_name, LEAF,0, 0, validate_node_name,STRING, "node-name","Name of the Node Present in Topology");
             libcli_register_param(&node, &node_name);
 
             {
@@ -194,5 +217,55 @@ nw_init_cli(){
             }
         }
     }
+
+    {
+        /*config node*/
+        static param_t node;
+        init_param(&node, CMD, "node", 0, 0, INVALID, 0, "\"node\" keyword");
+        libcli_register_param(config, &node);
+
+        {
+            /*config node <node-name>*/
+            static param_t node_name;
+            init_param(&node_name, LEAF,0, 0, validate_node_name,STRING, "node-name", "Node Name");
+            libcli_register_param(&node, &node_name);
+
+            {
+                /*config node <node-name> route*/
+                static param_t route;
+                init_param(&route, CMD, "route", 0, 0, INVALID, 0, "L3 Route");
+                libcli_register_param(&node_name, &route);
+
+                {
+                    static param_t ip_addr;
+                    init_param(&ip_addr, LEAF, 0, 0, 0, IPV4, "ip-address", "IPv4 Address");
+                    libcli_register_param(&route, &ip_addr);
+
+                    {
+
+                        static param_t mask;
+                        init_param(&mask, LEAF, 0,  l3_config_handler, validate_mask_value, INT, "mask", "mask(0-32)");
+                        libcli_register_param(&ip_addr, &mask);
+                        set_param_cmd_code(&mask, CMDCODE_CONF_NODE_L3ROUTE);
+                        {
+                            static param_t gwip;
+                            init_param(&gwip, LEAF, 0, 0, 0, IPV4, "gw-ip", "IPv4 Address");
+                            libcli_register_param(&mask, &gwip);
+
+                            {
+                                static param_t oif;
+                                init_param(&oif, LEAF, 0, l3_config_handler, 0, STRING, "oif", "Outgoing Intf Name");
+                                libcli_register_param(&gwip, &oif);
+                                set_param_cmd_code(&gwip, CMDCODE_CONF_NODE_L3ROUTE);
+                            }
+
+                        }
+                    }
+                }
+            }
+            support_cmd_negation(&node_name);
+        }
+    }
+
     support_cmd_negation(config);
 }

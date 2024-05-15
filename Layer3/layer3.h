@@ -9,7 +9,7 @@
 /*IPV4 header format as per standard specification*/
 typedef struct ip_hdr_ {
     unsigned int version : 4; /*version number, 4 for IPV4*/
-    unsigned ihl : 4;
+    unsigned int ihl : 4;
     char tos; 
     unsigned short total_length;
 

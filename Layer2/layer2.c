@@ -150,7 +150,8 @@ promote_pkt_to_layer2(node_t *node, interface_t *iif, ethernet_hdr_t *ethernet_h
             }
             default:
                 ;
-                promote_pkt_to_layer3(node, iif, GET_ETHERNET_HDR_PAYLOAD(ethernet_hdr), pkt_size);
+                promote_pkt_to_layer3(node, iif, GET_ETHERNET_HDR_PAYLOAD(ethernet_hdr), 
+                pkt_size-GET_ETH_HDR_SIZE_EXCL_PAYLOAD(ethernet_hdr));
                 break;
         }
 }
@@ -171,10 +172,9 @@ layer2_frame_recv(node_t *node, interface_t *interface,
         return;
     }
     
-
     printf("L2 Frame Accepted1\n");
     if(IS_INTF_L3_MODE(interface)){ 
-        promote_pkt_to_layer2()
+        promote_pkt_to_layer2(node, interface, (ethernet_hdr_t *)pkt ,pkt_size);
     }
     else if(IF_L2_MODE(interface)==TRUNK || IF_L2_MODE(interface)==ACCESS){
         unsigned int new_pkt_size = 0;
